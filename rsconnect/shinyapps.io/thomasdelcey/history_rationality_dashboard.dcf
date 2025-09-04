@@ -1,0 +1,10 @@
+name: history_rationality_dashboard
+title:
+username: thomasdelcey
+account: thomasdelcey
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15330159
+bundleId: 10862315
+url: https://thomasdelcey.shinyapps.io/history_rationality_dashboard/
+version: 1

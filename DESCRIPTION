@@ -1,0 +1,32 @@
+Package: rationality.app
+Title: Interactive app to explore the history of rationality 
+Authors@R: person("Thomas", "Delcey", email = "thomas.delcey@ube.fr", 
+  role = c("aut", "cre"))
+Version: 0.0.0.9000
+Description: ...
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    shiny,
+    ggiraph,
+    ggplot2,
+    DT,
+    dplyr,
+    magrittr,
+    ggraph,
+    rlang,
+    purrr,
+    shinycssloaders,
+    tidygraph,
+    networkflow,
+    cli,
+    htmltools,
+    jsonlite,
+    pkgload
+Remotes:
+    agoutsmedt/networkflow
+Depends: 
+    R (>= 2.10)
+LazyData: true
