@@ -28,3 +28,6 @@ rationality.app::run_app()
 # )
 # 
 
+# add dependencies for connect 
+
+# rsconnect::writeManifest(appDir = ".")
