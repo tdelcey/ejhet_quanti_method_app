@@ -24,7 +24,8 @@ Imports:
     cli,
     htmltools,
     jsonlite,
-    pkgload
+    pkgload,
+    here
 Remotes:
     agoutsmedt/networkflow
 Depends: 
