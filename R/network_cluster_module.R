@@ -12,8 +12,8 @@ clusterUI <- function(id) {
     # DT::DTOutput(ns("cluster_refs_without_id")),
     # shiny::h4("Cluster tf-idf"),
     # DT::DTOutput(ns("cluster_tf_idf")),
-    # shiny::h4("Cluster origins (t-1 → t)"),
-    # DT::DTOutput(ns("cluster_origins_table")),
+    shiny::h4("Cluster origins (t-1 → t)"),
+    DT::DTOutput(ns("cluster_origins_table")),
     shiny::h4("Cluster destinies (t → t+1)"),
     DT::DTOutput(ns("cluster_destinies_table"))
   )
@@ -21,13 +21,13 @@ clusterUI <- function(id) {
 
 clusterServer <- function(
     id,
-    all_nodes_flat,
-    sentences_joined,
-    refs_joined,
-    refs_wo_id_joined,
-    tf_idf_joined,
-    origins_joined,
-    destinies_joined,
+    # all_nodes_flat,
+    closest_sentences,
+    top_refs,
+    # refs_wo_id_joined,
+    # tf_idf_joined,
+    cluster_origins,
+    cluster_destinies,
     cluster_information,
     selected_graph, # reactive
     selected_cluster # reactive
@@ -50,7 +50,7 @@ clusterServer <- function(
       shiny::req(selected_cluster(), selected_graph())
       sc <- as.character(selected_cluster())
 
-      tab <- sentences_joined %>%
+      tab <- closest_sentences %>%
         coerce_value_col() %>%
         dplyr::filter(value_col == sc, time_window == selected_graph()) %>%
         dplyr::select(dplyr::any_of(c(
@@ -72,7 +72,7 @@ clusterServer <- function(
       shiny::req(selected_cluster(), selected_graph())
       sc <- as.character(selected_cluster())
 
-      tab <- refs_joined %>%
+      tab <- top_refs %>%
         coerce_value_col() %>%
         dplyr::filter(value_col == sc, time_window == selected_graph()) %>%
         dplyr::select(Nom, Annee, Revue_Abbrege, nb_cit)
@@ -94,7 +94,7 @@ clusterServer <- function(
       shiny::req(selected_cluster(), selected_graph())
       sc <- as.character(selected_cluster())
 
-      tab <- destinies_joined %>%
+      tab <- cluster_destinies %>%
         coerce_value_col() %>%
         dplyr::filter(value_col == sc, time_window == selected_graph()) %>%
         dplyr::select(forward_cluster, destiny_percent) %>%

@@ -26,13 +26,13 @@ app_server <- function(input, output, session) {
 
   clusterServer(
     id = "cluster",
-    all_nodes_flat = all_nodes_flat,
-    sentences_joined = sentences_joined,
-    refs_joined = refs_joined,
-    refs_wo_id_joined = refs_wo_id_joined,
-    tf_idf_joined = tf_idf_joined,
-    origins_joined = origins_joined,
-    destinies_joined = destinies_joined,
+    # all_nodes_flat = all_nodes_flat,
+    closest_sentences = closest_sentences,
+    top_refs = top_refs,
+    # refs_wo_id_joined = refs_wo_id_joined,
+    # tf_idf_joined = tf_idf_joined,
+    cluster_origins = cluster_origins,
+    cluster_destinies = cluster_destinies,
     cluster_information = c(
       "Titre",
       "Annee_Bibliographique",

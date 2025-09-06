@@ -19,7 +19,7 @@ networkSidebarServer <- function(id, graph_tbl) {
       if (is_list_graph) {
         shiny::selectInput(
           ns("selected_graph"),
-          "Select Time Window:",
+          "Select Time Window (8 years):",
           choices = names(graph_tbl),
           selected = names(graph_tbl)[1]
         )
