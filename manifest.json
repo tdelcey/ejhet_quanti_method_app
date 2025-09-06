@@ -1242,6 +1242,35 @@
         "Built": "R 4.4.1; ; 2024-08-28 01:49:39 UTC; windows"
       }
     },
+    "here": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "here",
+        "Title": "A Simpler Way to Find Your Files",
+        "Version": "1.0.1",
+        "Date": "2020-12-13",
+        "Authors@R": "\n    c(person(given = \"Kirill\",\n             family = \"M\\u00fcller\",\n             role = c(\"aut\", \"cre\"),\n             email = \"krlmlr+r@mailbox.org\",\n             comment = c(ORCID = \"0000-0002-1416-3412\")),\n      person(given = \"Jennifer\",\n             family = \"Bryan\",\n             role = \"ctb\",\n             email = \"jenny@rstudio.com\",\n             comment = c(ORCID = \"0000-0002-6983-2759\")))",
+        "Description": "Constructs paths to your project's files.\n    Declare the relative path of a file within your project with 'i_am()'.\n    Use the 'here()' function as a drop-in replacement for 'file.path()',\n    it will always locate the files relative to your project root.",
+        "License": "MIT + file LICENSE",
+        "URL": "https://here.r-lib.org/, https://github.com/r-lib/here",
+        "BugReports": "https://github.com/r-lib/here/issues",
+        "Imports": "rprojroot (>= 2.0.2)",
+        "Suggests": "conflicted, covr, fs, knitr, palmerpenguins, plyr, readr,\nrlang, rmarkdown, testthat, uuid, withr",
+        "VignetteBuilder": "knitr",
+        "Encoding": "UTF-8",
+        "LazyData": "true",
+        "RoxygenNote": "7.1.1.9000",
+        "Config/testthat/edition": "3",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-12-13 06:59:33 UTC; kirill",
+        "Author": "Kirill Müller [aut, cre] (<https://orcid.org/0000-0002-1416-3412>),\n  Jennifer Bryan [ctb] (<https://orcid.org/0000-0002-6983-2759>)",
+        "Maintainer": "Kirill Müller <krlmlr+r@mailbox.org>",
+        "Repository": "CRAN",
+        "Date/Publication": "2020-12-13 07:30:02 UTC",
+        "Built": "R 4.4.1; ; 2024-09-02 00:23:36 UTC; windows"
+      }
+    },
     "highr": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -3012,25 +3041,28 @@
       "checksum": "894ab332ff1f4b061e584322d6eddd27"
     },
     "app.R": {
-      "checksum": "83d219c2cec49b6e9afd6f54bdfd918b"
+      "checksum": "194ca81febb2d63f9f45d2f142871b80"
+    },
+    "data/closest_sentences.rda": {
+      "checksum": "7bea96529546155799d6c38c3d09b3a0"
+    },
+    "data/cluster_destinies.rda": {
+      "checksum": "001ef5146e4257f5bb0842634fb35992"
+    },
+    "data/cluster_origins.rda": {
+      "checksum": "788aca01b3351572f94ba7d4d5beb036"
     },
     "data/data_for_app_bibliometrics.RDS": {
-      "checksum": "a700560f144e84974a4fe4be9b6e51b1"
-    },
-    "data/destinies_joined.rda": {
-      "checksum": "50e157695e5b8582c6cbe53ce8cdbcbc"
+      "checksum": "6e647d3757d2f6310372532566823ee7"
     },
     "data/graphs.rda": {
-      "checksum": "e3c25e2d6247990b197c69fd232cd3f4"
+      "checksum": "4bd8b4ba453bf2597ad8aa1e6e4c3f96"
     },
-    "data/refs_joined.rda": {
-      "checksum": "8b881c8c67aba33fb62c2233a08c0cfb"
-    },
-    "data/sentences_joined.rda": {
-      "checksum": "dd882f6892c1c3d1b120fbe7cb31e08d"
+    "data/top_refs.rda": {
+      "checksum": "64278e5c1ad15cb24c401ac70aeb6707"
     },
     "DESCRIPTION": {
-      "checksum": "fed6324caa89659ab48c4a379a889478"
+      "checksum": "73ad7d2ebc11f554f0c4139f791ab349"
     },
     "man/pipe.Rd": {
       "checksum": "9e35158e71b20e4a82b834bc45306d45"
@@ -3039,28 +3071,31 @@
       "checksum": "55a73fced65431b6f5d4b20e90080644"
     },
     "R/app_server.R": {
-      "checksum": "619e5a1262e1a0c7cf66f1031f386e85"
+      "checksum": "ab918954e45daf4c9862d40a38c47409"
     },
     "R/app_ui.R": {
-      "checksum": "deb5b56a6933869f8d1a389f52147eaa"
+      "checksum": "4b6791243d86fe329c09daad83fd0cfd"
     },
     "R/helpers.R": {
       "checksum": "e359a5cda8a77d66e22acb762977ed7c"
     },
     "R/network_cluster_module.R": {
-      "checksum": "fac6b2aead2750f423354f10ddc6488d"
+      "checksum": "32e05ecb4670743fde39c328cc78c565"
     },
     "R/network_plot_module.R": {
       "checksum": "554aa0e4b044a71fdd5f2bf8470982ac"
     },
     "R/network_sidebar_module.R": {
-      "checksum": "207df38713553bb75f0cd5fc93809f7d"
+      "checksum": "996a4c7b9663ae061f6e0ae15b20b99b"
     },
     "R/run_app.R": {
       "checksum": "836aff0e8a9054f2af1007b2ddaff52d"
     },
     "R/utils-pipe.R": {
       "checksum": "2091725e1f2828bdf6f8255448ed111f"
+    },
+    "www/textual_cluster.html": {
+      "checksum": "ba1ab18f123753df8a019e41f3f2ac3c"
     }
   },
   "users": null
