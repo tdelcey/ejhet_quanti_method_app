@@ -17,40 +17,41 @@ clusterUI <- function(id) {
     ),
     
     shiny::fluidRow(
-      # --- Colonne de gauche : Origins (haut) + Sentences (bas)
+      # --- Left column: Origins (top) + Sentences (bottom)
       shiny::column(
         width = 6,
         shiny::div(class = "section-card",
                    shiny::h4("Cluster origins (t−1 → t)"),
-                   shiny::p(class = "muted", "D’où viennent les documents du cluster courant."),
+                   shiny::p(class = "muted", "Clusters in which the current documents were located in the previous time step."),
                    shiny::div(class = "dt-wrapper", DT::DTOutput(ns("cluster_origins_table")))
         ),
         shiny::div(class = "divider"),
         shiny::div(class = "section-card",
                    shiny::h4("Closest sentences"),
-                   shiny::p(class = "muted", "Phrases les plus proches pour le cluster sélectionné."),
+                   shiny::p(class = "muted", "Sentences most semantically similar to the selected cluster."),
                    shiny::div(class = "dt-wrapper", DT::DTOutput(ns("cluster_sentences")))
         )
       ),
       
-      # --- Colonne de droite : Destinies (haut) + References (bas)
+      # --- Right column: Destinies (top) + References (bottom)
       shiny::column(
         width = 6,
         shiny::div(class = "section-card",
                    shiny::h4("Cluster destinies (t → t+1)"),
-                   shiny::p(class = "muted", "Où migrent les documents de ce cluster à l’étape suivante."),
+                   shiny::p(class = "muted", "Clusters into which the current documents move in the next time step."),
                    shiny::div(class = "dt-wrapper", DT::DTOutput(ns("cluster_destinies_table")))
         ),
         shiny::div(class = "divider"),
         shiny::div(class = "section-card",
-                   shiny::h4("Top References"),
-                   shiny::p(class = "muted", "Références les plus citées dans ce cluster."),
+                   shiny::h4("Top references"),
+                   shiny::p(class = "muted", "Most frequently cited references within this cluster."),
                    shiny::div(class = "dt-wrapper", DT::DTOutput(ns("cluster_refs")))
         )
       )
     )
   )
 }
+
 
 
 clusterServer <- function(
