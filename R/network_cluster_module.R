@@ -22,7 +22,7 @@ clusterUI <- function(id) {
         width = 6,
         shiny::div(class = "section-card",
                    shiny::h4("Cluster origins (t−1 → t)"),
-                   shiny::p(class = "muted", "Clusters in which the current documents were located in the previous time step."),
+                   shiny::p(class = "muted", "Clusters in which the current documents were located in the previous time window"),
                    shiny::div(class = "dt-wrapper", DT::DTOutput(ns("cluster_origins_table")))
         ),
         shiny::div(class = "divider"),
@@ -38,7 +38,7 @@ clusterUI <- function(id) {
         width = 6,
         shiny::div(class = "section-card",
                    shiny::h4("Cluster destinies (t → t+1)"),
-                   shiny::p(class = "muted", "Clusters into which the current documents move in the next time step."),
+                   shiny::p(class = "muted", "Clusters into which the current documents move in the next time window"),
                    shiny::div(class = "dt-wrapper", DT::DTOutput(ns("cluster_destinies_table")))
         ),
         shiny::div(class = "divider"),
