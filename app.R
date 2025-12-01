@@ -32,8 +32,7 @@ invisible(lapply(list_files, source))
 #' ⚠️ `create_update_data()` must have been run once before launching the app ⚠️
 #' The script creates/updates all the data needed for the app using a path to the ejhet_project folder.
 
-#' `renv::init()` must have been run once before publishing the app to ensure all packages are installed in app renv.
-#' Then, use `renv::snapshot()` to save the state of the environment.
+#' `rsconnect::writeManifest(appDir = ".", appFiles = NULL)` can be used to create a manifest file for deployment on cloud.
 
 # general ui
 
