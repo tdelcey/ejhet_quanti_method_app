@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 .Rproj
+.Rprofile
 
-
-data/data_for_app_bibliometrics.RDS
+data_raw/*.rds
+data_raw/*.RDS
