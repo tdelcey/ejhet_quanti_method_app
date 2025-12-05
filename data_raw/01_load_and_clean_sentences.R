@@ -6,6 +6,7 @@
 # Load paths + packages
 source(here::here("data_raw", "paths_and_packages.R"))
 p_load(
+  here,
   tidyverse,
   data.table,
   arrow,
@@ -58,10 +59,27 @@ sentences <- sentences_dataset %>%
     backbone_community,
     sentence,
     similarity_rv,
-    embedding
+    embedding,
+    centroid
   ) %>%
   collect() %>%
   inner_join(metadata, by = "id") %>%
+  mutate(
+    # Cosine similarity of each sentence embedding to its cluster centroid
+    similarity_centroid = purrr::map2_dbl(
+      embedding,
+      centroid,
+      function(vec, ctr) {
+        num <- sum(vec * ctr)
+        denom <- sqrt(sum(vec * vec)) * sqrt(sum(ctr * ctr))
+        if (is.na(denom) || denom == 0) {
+          return(NA_real_)
+        }
+        num / denom
+      }
+    )
+  ) %>%
+  select(-centroid) %>% # centroid used for similarity only; drop to keep file size stable
   arrange(id, sentence_id)
 
 setDT(sentences)

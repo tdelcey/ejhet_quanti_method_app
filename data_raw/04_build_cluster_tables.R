@@ -26,10 +26,18 @@ setDT(sentences)
 # 1) TABLE: SENTENCES PER CLUSTER (top sentences etc.)
 # ============================================================
 
-# Keep 50 most representative sentences per (HDBSCAN_cluster, window)
-cluster_sentences <- sentences[,
-  .SD[order(-similarity_rv)][1:25],
-  by = .(HDBSCAN_cluster, cluster_id, backbone_community, window)
+# Keep top sentences per cluster by both representative vector and centroid similarity
+sentences[, rank_rv := frank(-similarity_rv, ties.method = "dense"), by = .(
+  HDBSCAN_cluster, cluster_id, backbone_community, window
+)]
+sentences[, rank_centroid := frank(-similarity_centroid, ties.method = "dense"), by = .(
+  HDBSCAN_cluster, cluster_id, backbone_community, window
+)]
+
+cluster_sentences <- sentences[
+  rank_rv <= 25 | rank_centroid <= 25
+][
+  order(HDBSCAN_cluster, cluster_id, window, -similarity_rv)
 ]
 
 # Add metadata
@@ -47,9 +55,12 @@ cluster_sentences <- cluster_sentences[,
     journal,
     authors,
     url,
-    similarity_rv
+    similarity_rv,
+    similarity_centroid
   )
 ]
+
+sentences[, c("rank_rv", "rank_centroid") := NULL]
 
 # FLAG rationality sentences
 cluster_sentences[,

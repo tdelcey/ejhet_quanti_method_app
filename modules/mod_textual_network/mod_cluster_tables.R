@@ -44,7 +44,21 @@ mod_cluster_tables_ui <- function(id) {
         "Sentences",
         callout_box(
           "Interpretation",
-          "Sentences assigned to this cluster, ranked by semantic proximity to the representative vectors. The user can filter to only show sentences mentioning 'rational' or 'rationality'."
+          "Sentences assigned to this cluster, ranked by semantic proximity. Two metrics of similarity are provided: 
+            (1) similarity to the cluster centroid gives the cluster sentences most representative of the cluster as a whole;
+            (2) similarity to the representative vector gives cluster sentences most representative of rationality discussion at this period.
+            You can also filter to only show sentences mentioning 'rational' or 'rationality' (since not all sentences in the cluster may explicitly mention these terms)."
+        ),
+        prettyRadioButtons(
+          inputId = ns("sentence_order_metric"),
+          label = "Rank sentences by",
+          choices = c(
+            "Representative vector" = "rv",
+            "Cluster centroid" = "centroid"
+          ),
+          selected = "rv",
+          inline = TRUE,
+          status = "primary"
         ),
         prettySwitch(
           inputId = ns("rational_only"),
@@ -120,15 +134,33 @@ mod_cluster_tables_server <- function(
 
       df <- sentences_tbl %>%
         filter(cluster_id == cid) %>%
-        select(sentence, title, year, journal, authors, similarity_rv)
+        select(
+          sentence,
+          title,
+          year,
+          journal,
+          authors,
+          similarity_rv,
+          similarity_centroid
+        ) %>%
+        rename(
+          similarity_to_rv = similarity_rv,
+          similarity_to_centroid = similarity_centroid
+        )
 
       if (isTRUE(input$rational_only)) {
         df <- df %>%
           filter(stringr::str_detect(sentence, regex("rational", TRUE)))
       }
 
+      order_col <- if (identical(input$sentence_order_metric, "centroid")) {
+        "similarity_to_centroid"
+      } else {
+        "similarity_to_rv"
+      }
+
       df <- df %>%
-        arrange(desc(similarity_rv))
+        arrange(dplyr::desc(.data[[order_col]]))
 
       datatable(
         df,
