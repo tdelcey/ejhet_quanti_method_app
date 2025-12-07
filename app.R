@@ -1,15 +1,16 @@
-library(shiny)
-library(shinyWidgets)
-library(shinycssloaders)
-library(ggiraph)
-library(ggraph)
-library(here)
-library(tidyverse)
-library(tidygraph)
-library(ggrepel)
-library(DT)
-library(bs4Dash)
-
+pacman::p_load(
+  shiny,
+  shinyWidgets,
+  shinycssloaders,
+  ggiraph,
+  ggraph,
+  here,
+  tidyverse,
+  tidygraph,
+  ggrepel,
+  DT,
+  bs4Dash
+)
 # load any helper functions and modules
 list_files_helpers <- list.files(
   "utils",
