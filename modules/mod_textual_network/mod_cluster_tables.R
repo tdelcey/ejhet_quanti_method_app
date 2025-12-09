@@ -7,7 +7,7 @@ mod_cluster_tables_ui <- function(id) {
     style = "
       border:2px solid #D4D4D4;
       border-radius:10px;
-      padding:20px;
+      padding:15px;
       background-color:#FAFAFA;
       height:100%;
     ",
@@ -16,7 +16,7 @@ mod_cluster_tables_ui <- function(id) {
       style = "
         font-size:20px;
         font-weight:600;
-        padding-left:12px;
+        padding-left:10px;
         border-left:5px solid #3F51B5;
         margin-bottom:15px;
       ",
@@ -120,9 +120,11 @@ mod_cluster_tables_server <- function(
         filter(cluster_id == cid) %>%
         arrange(desc(tf_idf)) %>%
         select(token, tf_idf) %>%
+        mutate(tf_idf = round(tf_idf, 4)) %>%
         rename(term = token, tf_idf_score = tf_idf)
 
-      datatable(df, rownames = FALSE, options = list(dom = "tip"))
+      datatable(df, rownames = FALSE, options = list(dom = "tip")) %>%
+        DT::formatStyle(columns = names(df), fontSize = '11px')
     })
 
     # Sentences ------------------------------------------------------------
@@ -152,9 +154,13 @@ mod_cluster_tables_server <- function(
           similarity_rv,
           similarity_centroid
         ) %>%
+        mutate(
+          similarity_rv = round(similarity_rv, 3),
+          similarity_centroid = round(similarity_centroid, 3)
+        ) %>%
         rename(
-          similarity_to_rv = similarity_rv,
-          similarity_to_centroid = similarity_centroid
+          sim_to_rv = similarity_rv,
+          sim_to_centroid = similarity_centroid
         )
 
       if (isTRUE(input$rational_only)) {
@@ -163,9 +169,9 @@ mod_cluster_tables_server <- function(
       }
 
       order_col <- if (identical(input$sentence_order_metric, "centroid")) {
-        "similarity_to_centroid"
+        "sim_to_centroid"
       } else {
-        "similarity_to_rv"
+        "sim_to_rv"
       }
 
       df <- df %>%
@@ -176,7 +182,9 @@ mod_cluster_tables_server <- function(
         escape = FALSE,
         rownames = FALSE,
         options = list(dom = "tip")
-      )
+      ) %>%
+        DT::formatStyle(columns = names(df), fontSize = '11px') %>%
+        DT::formatStyle(columns = "sentence", fontSize = '10px')
     })
 
     # Articles -------------------------------------------------------------
@@ -194,7 +202,8 @@ mod_cluster_tables_server <- function(
             "' target='_blank'>",
             title,
             "</a>"
-          )
+          ),
+          mean_similarity = round(mean_similarity, 3)
         ) %>%
         select(title, journal, authors, year, n_sentences, mean_similarity) %>%
         arrange(desc(n_sentences))
@@ -204,7 +213,8 @@ mod_cluster_tables_server <- function(
         escape = FALSE,
         rownames = FALSE,
         options = list(dom = "tip")
-      )
+      ) %>%
+        DT::formatStyle(columns = names(df), fontSize = '11px')
     })
 
     # References -----------------------------------------------------------
@@ -232,7 +242,8 @@ mod_cluster_tables_server <- function(
       df <- df %>%
         select(-has_id)
 
-      datatable(df, rownames = FALSE, options = list(dom = "tip"))
+      datatable(df, rownames = FALSE, options = list(dom = "tip")) %>%
+        DT::formatStyle(columns = names(df), fontSize = '11px')
     })
   })
 }

@@ -58,11 +58,11 @@ mod_network_view_ui <- function(id) {
       style = "
         border:1px solid #D0D0D0;
         border-radius:8px;
-        padding:12px;
+        padding:2px;
         background:#FFF;
       ",
       shinycssloaders::withSpinner(
-        girafeOutput(ns("plot"), height = '800px'),
+        girafeOutput(ns("plot"), height = '550px'),
         type = 4,
         color = '#607D8B'
       )
