@@ -134,6 +134,15 @@ mod_cluster_tables_server <- function(
 
       df <- sentences_tbl %>%
         filter(cluster_id == cid) %>%
+        mutate(
+          title = paste0(
+            "<a href='",
+            url,
+            "' target='_blank'>",
+            title,
+            "</a>"
+          )
+        ) %>%
         select(
           sentence,
           title,
@@ -178,10 +187,24 @@ mod_cluster_tables_server <- function(
       }
       df <- top_articles %>%
         filter(cluster_id == cid) %>%
+        mutate(
+          title = paste0(
+            "<a href='",
+            url,
+            "' target='_blank'>",
+            title,
+            "</a>"
+          )
+        ) %>%
         select(title, journal, authors, year, n_sentences, mean_similarity) %>%
         arrange(desc(n_sentences))
 
-      datatable(df, rownames = FALSE, options = list(dom = "tip"))
+      datatable(
+        df,
+        escape = FALSE,
+        rownames = FALSE,
+        options = list(dom = "tip")
+      )
     })
 
     # References -----------------------------------------------------------

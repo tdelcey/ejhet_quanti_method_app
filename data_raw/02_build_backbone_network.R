@@ -16,8 +16,6 @@ refs <- read_rds(here("data_raw", "references_wos.rds"))
 backbone_network_raw <- read_rds(here("data_raw", "backbone_network_raw.rds"))
 window_levels <- read_rds(here("data", "window_levels.rds"))
 
-setDT(sentences)
-
 # ------------------------------------------------------------
 # 1. Compute proportions per (HDBSCAN cluster × window)
 # ------------------------------------------------------------
@@ -162,7 +160,6 @@ write_rds(
   here("data", "tfidf_tables.rds")
 )
 
-
 # ------------------------------------------------------------
 # 3. Build the enriched backbone network
 # ------------------------------------------------------------
@@ -244,16 +241,20 @@ write_rds(cluster_colors, here("data", "cluster_colors.rds"))
 
 backbone_network <- backbone_network %>%
   activate("edges") %>%
-  rename(weight = oldweight)
+  rename(weight = oldweight) %>%
+  activate("nodes") %>%
+  mutate(size = proportion_hdbscan_cluster) # for repelling in force atlas
 
-
-set.seed(89)
-backbone_network <- vite::complete_forceatlas2(
-  backbone_network,
-  kgrav = 1,
-  first.iter = 10000,
-  overlap.method = "repel",
-  overlap.iter = 2000
-)
+run_force_atlas <- TRUE
+if (run_force_atlas) {
+  set.seed(89)
+  backbone_network <- vite::complete_forceatlas2(
+    backbone_network,
+    kgrav = 10,
+    first.iter = 50000,
+    overlap.method = "repel",
+    overlap.iter = 5000
+  )
+}
 
 write_rds(backbone_network, here("data", "backbone_network.rds"))

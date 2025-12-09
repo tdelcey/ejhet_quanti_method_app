@@ -20,19 +20,29 @@ metadata <- read_rds(here("data_raw", "metadata_articles.rds"))
 # proportion_hdbscan_cluster
 backbone_network <- read_rds(here("data", "backbone_network.rds"))
 
-setDT(sentences)
-
 # ============================================================
 # 1) TABLE: SENTENCES PER CLUSTER (top sentences etc.)
 # ============================================================
 
 # Keep top sentences per cluster by both representative vector and centroid similarity
-sentences[, rank_rv := frank(-similarity_rv, ties.method = "dense"), by = .(
-  HDBSCAN_cluster, cluster_id, backbone_community, window
-)]
-sentences[, rank_centroid := frank(-similarity_centroid, ties.method = "dense"), by = .(
-  HDBSCAN_cluster, cluster_id, backbone_community, window
-)]
+sentences[,
+  rank_rv := frank(-similarity_rv, ties.method = "dense"),
+  by = .(
+    HDBSCAN_cluster,
+    cluster_id,
+    backbone_community,
+    window
+  )
+]
+sentences[,
+  rank_centroid := frank(-similarity_centroid, ties.method = "dense"),
+  by = .(
+    HDBSCAN_cluster,
+    cluster_id,
+    backbone_community,
+    window
+  )
+]
 
 cluster_sentences <- sentences[
   rank_rv <= 25 | rank_centroid <= 25
@@ -94,7 +104,8 @@ top_articles <- sentences[,
     HDBSCAN_cluster,
     cluster_id,
     backbone_community,
-    window
+    window,
+    url
   )
 ]
 
