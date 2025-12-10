@@ -41,7 +41,7 @@ tokens <- extract_ngrams(
     cluster_id,
     backbone_community
   )],
-  ngrams = 2L,
+  ngrams = 3L,
   grouping_cols = c(
     "HDBSCAN_cluster",
     "cluster_id",
@@ -65,7 +65,7 @@ tokens_count_hdbscan_cluster <- compute_tf_idf(
 # Labels per decade
 labels_hdbscan_cluster <- tokens_count_hdbscan_cluster[order(-tf_idf)][
   corpus_tf > 20,
-  head(.SD, 5),
+  head(.SD, 4),
   by = .(backbone_community, HDBSCAN_cluster, cluster_id, window)
 ]
 
@@ -141,7 +141,7 @@ top_terms_hdbscan_cluster <- tokens_count_hdbscan_cluster[
 ][
   corpus_tf > 20
 ][,
-  head(.SD, 15),
+  head(.SD, 20),
   by = .(backbone_community, HDBSCAN_cluster, window)
 ]
 

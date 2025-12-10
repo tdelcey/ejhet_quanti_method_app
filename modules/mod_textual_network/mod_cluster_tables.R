@@ -123,7 +123,12 @@ mod_cluster_tables_server <- function(
         mutate(tf_idf = round(tf_idf, 4)) %>%
         rename(term = token, tf_idf_score = tf_idf)
 
-      datatable(df, rownames = FALSE, options = list(dom = "tip")) %>%
+      datatable(
+        df,
+        escape = FALSE,
+        rownames = FALSE,
+        options = list(dom = "tip", pageLength = 20)
+      ) %>%
         DT::formatStyle(columns = names(df), fontSize = '11px')
     })
 
