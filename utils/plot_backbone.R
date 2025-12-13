@@ -33,7 +33,7 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
       edge_width = ifelse(
         same_comm,
         weight, # keep original width for intra-community
-        weight * 0.1 # shrink inter-community edges
+        weight * 0.5 # shrink inter-community edges
       )
     )
 
@@ -63,7 +63,7 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
         color = I(edge_color),
         width = edge_width
       ),
-      alpha = 0.5,
+      alpha = 0.9,
       show.legend = FALSE
     ) +
 
@@ -165,8 +165,8 @@ plot_network_interactive_dynamic <- function(
 
       edge_width = ifelse(
         same_comm,
-        1.2, # width intra-community
-        0.3 # thin inter-community
+        1.3, # width intra-community
+        0.8 # thin inter-community
       )
     )
 
@@ -187,7 +187,7 @@ plot_network_interactive_dynamic <- function(
         color = I(edge_color),
         width = edge_width
       ),
-      alpha = 0.45,
+      alpha = 0.9,
       show.legend = FALSE
     ) +
 

@@ -217,7 +217,7 @@ mod_cluster_tables_server <- function(
         df,
         escape = FALSE,
         rownames = FALSE,
-        options = list(dom = "tip")
+        options = list(dom = "tip", pageLength = 20)
       ) %>%
         DT::formatStyle(columns = names(df), fontSize = '11px')
     })
