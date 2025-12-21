@@ -11,6 +11,8 @@ pacman::p_load(
   DT,
   bs4Dash
 )
+source(here::here("data_raw", "paths_and_packages.R"))
+
 # load any helper functions and modules
 list_files_helpers <- list.files(
   "utils",
@@ -52,7 +54,10 @@ ui <- fluidPage(
       "A quantitative history of rationality"
     )
   ),
-  modules_textual_network_ui("textnet")
+  tabsetPanel(
+    tabPanel("Textual network", modules_textual_network_ui("textnet")),
+    tabPanel("Citation network", modules_citation_network_ui("citnet"))
+  )
 )
 
 server <- function(input, output, session) {
@@ -69,6 +74,40 @@ server <- function(input, output, session) {
   top_articles <- load_data("cluster_top_articles")
   top_refs <- load_data("cluster_top_references")
 
+  # precomputed plots
+  textual_plots <- readRDS(here::here(
+    "data_raw",
+    "plots",
+    "textual_network_plots.rds"
+  ))
+
+  # citation network
+  bibliometrics_data <- readRDS(
+    file.path(ejhet_project, "data_for_app_bibliometrics.RDS")
+  )
+
+  citation_graphs <- bibliometrics_data$graphs
+  closest_sentences <- bibliometrics_data$closest_sentences
+  top_refs_citation <- bibliometrics_data$top_refs
+  top_refs_without_id <- bibliometrics_data$top_refs_without_id
+  cluster_origins <- bibliometrics_data$cluster_origins
+  cluster_destinies <- bibliometrics_data$cluster_destinies
+  tf_idf <- bibliometrics_data$tf_idf
+  citation_plots <- readRDS(
+    here::here("data_raw", "plots", "citation_network_plots.rds")
+  )
+
+  citation_cluster_information <- c(
+    "Nom",
+    "Annee_Bibliographique",
+    "Titre",
+    "role",
+    "participation_coefficient",
+    "z_within",
+    "cit_from_cluster",
+    "share_ref_cluster"
+  )
+
   modules_textual_network_server(
     id = "textnet",
     backbone_network = backbone_network,
@@ -79,7 +118,26 @@ server <- function(input, output, session) {
     tfidf_hdbscan = tfidf_hdbscan,
     sentences_tbl = sentences_tbl,
     top_articles = top_articles,
-    top_refs = top_refs
+    top_refs = top_refs,
+    static_plot = textual_plots$static,
+    temporal_plot = textual_plots$temporal
+  )
+
+  modules_citation_network_server(
+    id = "citnet",
+    graph_tbl = citation_graphs,
+    cluster_id = "value_col",
+    cluster_information = citation_cluster_information,
+    node_id = "ID_Art",
+    cluster_sentences = closest_sentences,
+    top_references = top_refs_citation,
+    top_references_without_id = top_refs_without_id,
+    cluster_origins = cluster_origins,
+    cluster_destinies = cluster_destinies,
+    tf_idf_data = tf_idf,
+    node_tooltip = "nodes_tooltip",
+    node_size = "node_size",
+    precomputed_plots = citation_plots
   )
 }
 

@@ -19,7 +19,9 @@ modules_textual_network_server <- function(
   tfidf_hdbscan,
   sentences_tbl,
   top_articles,
-  top_refs
+  top_refs,
+  static_plot = NULL,
+  temporal_plot = NULL
 ) {
   moduleServer(id, function(input, output, session) {
     selected_cluster <- mod_network_view_server(
@@ -28,7 +30,9 @@ modules_textual_network_server <- function(
       temporal_backbone_network,
       cluster_colors,
       community_label_positions,
-      window_levels
+      window_levels,
+      static_plot = static_plot,
+      temporal_plot = temporal_plot
     )
 
     mod_cluster_tables_server(

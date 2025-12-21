@@ -81,7 +81,9 @@ mod_network_view_server <- function(
   temporal_backbone_network,
   cluster_colors,
   community_label_positions,
-  window_levels
+  window_levels,
+  static_plot = NULL,
+  temporal_plot = NULL
 ) {
   moduleServer(id, function(input, output, session) {
     # ------------------------------------------------------------------
@@ -89,17 +91,25 @@ mod_network_view_server <- function(
     # ------------------------------------------------------------------
     output$plot <- ggiraph::renderGirafe({
       if (input$mode == "Static") {
-        plot_network_interactive_static(
-          graph = backbone_network,
-          cluster_colors = cluster_colors
-        )
+        if (!is.null(static_plot)) {
+          static_plot
+        } else {
+          plot_network_interactive_static(
+            graph = backbone_network,
+            cluster_colors = cluster_colors
+          )
+        }
       } else {
-        plot_network_interactive_dynamic(
-          temporal_backbone_network = temporal_backbone_network,
-          cluster_colors = cluster_colors,
-          community_label_positions = community_label_positions,
-          window_levels = window_levels
-        )
+        if (!is.null(temporal_plot)) {
+          temporal_plot
+        } else {
+          plot_network_interactive_dynamic(
+            temporal_backbone_network = temporal_backbone_network,
+            cluster_colors = cluster_colors,
+            community_label_positions = community_label_positions,
+            window_levels = window_levels
+          )
+        }
       }
     })
 
