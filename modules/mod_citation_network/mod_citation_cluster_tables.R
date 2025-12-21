@@ -23,19 +23,10 @@ mod_citation_cluster_tables_ui <- function(id) {
       "Cluster details"
     ),
 
-    p("Click a node or a cluster label to explore its content."),
+    p("Click a cluster label to explore its content."),
 
     tabsetPanel(
       id = ns("tabs"),
-      tabPanel(
-        "Node information",
-        callout_box(
-          "Interpretation",
-          "The overview lists documents in the selected cluster. 
-           Use the role filter to focus on hubs or connectors."
-        ),
-        uiOutput(ns("info_panel"))
-      ),
       tabPanel(
         "Cluster share",
         callout_box(
@@ -140,36 +131,6 @@ mod_citation_cluster_tables_server <- function(
       DT::formatStyle(dt, columns = names(data), fontSize = "11px")
     }
 
-    cluster_nodes_raw <- reactive({
-      g_tbl <- active_graph()
-      nodes_df <- tidygraph::activate(g_tbl, "nodes") |>
-        as.data.frame()
-      if (is.null(selected_cluster())) {
-        return(nodes_df[0, , drop = FALSE])
-      }
-      nodes_df |>
-        dplyr::filter(
-          as.character(.data[[cluster_id]]) == as.character(selected_cluster())
-        )
-    })
-
-    output$info_panel <- renderUI({
-      cl <- if (!is.null(selected_cluster())) {
-        if (isTRUE(is_list_graph()) && !is.null(selected_graph())) {
-          paste0(selected_cluster(), " - ", selected_graph())
-        } else {
-          as.character(selected_cluster())
-        }
-      } else {
-        "No cluster selected"
-      }
-      tagList(
-        h4(paste0("Documents in ", cl)),
-        uiOutput(ns("role_filter_ui")),
-        DT::DTOutput(ns("cluster_docs"))
-      )
-    })
-
     output$cluster_share <- DT::renderDT({
       g_tbl <- active_graph()
       nodes <- tidygraph::activate(g_tbl, "nodes") %>% as.data.frame()
@@ -190,162 +151,6 @@ mod_citation_cluster_tables_server <- function(
         rownames = FALSE
       ) %>%
         DT::formatStyle(columns = names(tab), fontSize = "11px")
-    })
-
-    output$cluster_docs <- DT::renderDT({
-      df <- cluster_nodes_raw()
-      if (nrow(df) == 0) {
-        empty <- data.frame()
-        return(make_dt(empty, options = list(dom = "t"), rownames = FALSE))
-      }
-
-      if (
-        !is.null(input$role_filter) &&
-          input$role_filter != "All" &&
-          "role" %in% names(df)
-      ) {
-        df <- dplyr::filter(df, .data$role == input$role_filter)
-      }
-
-      role_expl <- c(
-        R1 = "Ultra-peripheral node: low z, P < 0.05. Almost all links within its cluster.",
-        R2 = "Peripheral node: low z, 0.05 <= P < 0.62. Mostly within-cluster links.",
-        R3 = "Connector node: low z, 0.62 <= P < 0.80. Many links to other clusters.",
-        R4 = "Kinless node: low z, P >= 0.80. Links spread across clusters.",
-        R5 = "Provincial hub: high z, P < 0.30. Hub inside its cluster.",
-        R6 = "Connector hub: high z, 0.30 <= P < 0.75. Hub bridging clusters.",
-        R7 = "Kinless hub: high z, P >= 0.75. Hub linked broadly across clusters."
-      )
-      role_alias <- c(
-        "ultra-peripheral" = "R1",
-        "peripheral" = "R2",
-        "connector" = "R3",
-        "kinless" = "R4",
-        "provincial hub" = "R5",
-        "connector hub" = "R6",
-        "kinless hub" = "R7"
-      )
-      norm_label <- function(x) {
-        x <- trimws(as.character(x))
-        x <- gsub("\\s+", " ", x)
-        tolower(x)
-      }
-      if ("role" %in% names(df)) {
-        df$role <- vapply(
-          df$role,
-          function(val) {
-            key <- role_alias[[norm_label(val)]]
-            desc <- if (!is.null(key)) {
-              role_expl[[key]]
-            } else {
-              "Role description unavailable"
-            }
-            sprintf(
-              "<span title=\"%s\">%s</span>",
-              htmltools::htmlEscape(desc),
-              htmltools::htmlEscape(as.character(val))
-            )
-          },
-          FUN.VALUE = character(1)
-        )
-      }
-
-      shown_cols <- intersect(cluster_information, names(df))
-      if (!length(shown_cols)) {
-        shown_cols <- setdiff(names(df), c("x", "y", ".graph"))
-      }
-      shown <- df |> dplyr::select(dplyr::all_of(shown_cols))
-
-      cols <- colnames(shown)
-      z_idx <- match("z_within", cols) - 1L
-      p_idx <- match("participation_coefficient", cols) - 1L
-
-      z_expl <- paste(
-        "Within-cluster degree z (standardized).",
-        "Formula: z = (k_iC - mean(k_C)) / sd(k_C),",
-        "k_iC = links or weight from node i to nodes in its cluster C.",
-        "Interpretation: higher = more hub-like inside its cluster; ~0 = average.",
-        "Rule of thumb: z > 2.5 indicates a hub.",
-        sep = "\n"
-      )
-      p_expl <- paste(
-        "Participation coefficient P in [0,1].",
-        "Formula: P = 1 - sum_C (k_iC / k_i)^2,",
-        "k_iC = links or weight from i to cluster C; k_i = total links or weight of i.",
-        "Interpretation: 0 = all links in one cluster; 1 = evenly spread across clusters.",
-        "Typical cutoffs: ~0.05 local, ~0.30 local hub, ~0.62 connector, >= 0.80 kinless-like.",
-        sep = "\n"
-      )
-
-      js_row_cb <- DT::JS(paste0(
-        "function(row,data){",
-        if (!is.na(z_idx)) {
-          paste0(
-            "$('td:eq(",
-            z_idx,
-            ")', row).attr('title', ",
-            jsonlite::toJSON(z_expl, auto_unbox = TRUE),
-            ");"
-          )
-        } else {
-          ""
-        },
-        if (!is.na(p_idx)) {
-          paste0(
-            "$('td:eq(",
-            p_idx,
-            ")', row).attr('title', ",
-            jsonlite::toJSON(p_expl, auto_unbox = TRUE),
-            ");"
-          )
-        } else {
-          ""
-        },
-        "}"
-      ))
-
-      num_renderer <- DT::JS(
-        "function(data,type,row,meta){ if(type === 'display'){ if(data == null) return ''; return Number(data).toFixed(3);} return data; }"
-      )
-      col_defs <- list()
-      if (!is.na(z_idx)) {
-        col_defs <- c(
-          col_defs,
-          list(list(targets = z_idx, render = num_renderer))
-        )
-      }
-      if (!is.na(p_idx)) {
-        col_defs <- c(
-          col_defs,
-          list(list(targets = p_idx, render = num_renderer))
-        )
-      }
-
-      make_dt(
-        shown,
-        escape = -which(cols %in% c("role", "Titre")),
-        rownames = FALSE,
-        options = list(
-          dom = "lfrtip",
-          searchHighlight = TRUE,
-          rowCallback = js_row_cb,
-          columnDefs = col_defs
-        )
-      )
-    })
-
-    output$role_filter_ui <- renderUI({
-      df <- cluster_nodes_raw()
-      roles <- sort(unique(as.character(df$role)))
-      if (!length(roles)) {
-        return(NULL)
-      }
-      selectInput(
-        ns("role_filter"),
-        "Filter by role:",
-        choices = c("All", roles),
-        selected = "All"
-      )
     })
 
     output$cluster_sentences <- DT::renderDT({
