@@ -55,6 +55,8 @@ ui <- fluidPage(
     )
   ),
   tabsetPanel(
+    type = "pills",
+    selected = "Textual network",
     tabPanel("Textual network", modules_textual_network_ui("textnet")),
     tabPanel("Citation network", modules_citation_network_ui("citnet"))
   )
