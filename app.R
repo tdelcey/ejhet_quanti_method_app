@@ -82,17 +82,45 @@ server <- function(input, output, session) {
   ))
 
   # citation network
-  bibliometrics_data <- readRDS(
-    file.path(ejhet_project, "data_for_app_bibliometrics.RDS")
-  )
+  bibliometrics_index_path <- here::here("data", "bibliometrics", "index.rds")
+  bibliometrics_tables_path <- here::here("data", "bibliometrics", "tables.rds")
+  bibliometrics_graphs_dir <- here::here("data", "bibliometrics", "graphs")
 
-  citation_graphs <- bibliometrics_data$graphs
-  closest_sentences <- bibliometrics_data$closest_sentences
-  top_refs_citation <- bibliometrics_data$top_refs
-  top_refs_without_id <- bibliometrics_data$top_refs_without_id
-  cluster_origins <- bibliometrics_data$cluster_origins
-  cluster_destinies <- bibliometrics_data$cluster_destinies
-  tf_idf <- bibliometrics_data$tf_idf
+  if (
+    file.exists(bibliometrics_index_path) &&
+      file.exists(bibliometrics_tables_path) &&
+      dir.exists(bibliometrics_graphs_dir)
+  ) {
+    biblio_index <- readRDS(bibliometrics_index_path)
+    biblio_tables <- readRDS(bibliometrics_tables_path)
+
+    graph_loader <- function(key) {
+      readRDS(file.path(bibliometrics_graphs_dir, paste0(key, ".rds")))
+    }
+
+    citation_graphs <- NULL
+    closest_sentences <- biblio_tables$closest_sentences
+    top_refs_citation <- biblio_tables$top_refs
+    top_refs_without_id <- biblio_tables$top_refs_without_id
+    cluster_origins <- biblio_tables$cluster_origins
+    cluster_destinies <- biblio_tables$cluster_destinies
+    tf_idf <- biblio_tables$tf_idf
+  } else {
+    bibliometrics_data <- readRDS(
+      file.path(ejhet_project, "data_for_app_bibliometrics.RDS")
+    )
+
+    biblio_index <- NULL
+    graph_loader <- NULL
+
+    citation_graphs <- bibliometrics_data$graphs
+    closest_sentences <- bibliometrics_data$closest_sentences
+    top_refs_citation <- bibliometrics_data$top_refs
+    top_refs_without_id <- bibliometrics_data$top_refs_without_id
+    cluster_origins <- bibliometrics_data$cluster_origins
+    cluster_destinies <- bibliometrics_data$cluster_destinies
+    tf_idf <- bibliometrics_data$tf_idf
+  }
   citation_plots <- readRDS(
     here::here("data_raw", "plots", "citation_network_plots.rds")
   )
@@ -126,6 +154,8 @@ server <- function(input, output, session) {
   modules_citation_network_server(
     id = "citnet",
     graph_tbl = citation_graphs,
+    graph_index = biblio_index,
+    graph_loader = graph_loader,
     cluster_id = "value_col",
     cluster_information = citation_cluster_information,
     node_id = "ID_Art",

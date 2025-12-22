@@ -55,7 +55,9 @@ mod_citation_network_view_ui <- function(id) {
 
 mod_citation_network_view_server <- function(
   id,
-  graph_tbl,
+  graph_tbl = NULL,
+  graph_index = NULL,
+  graph_loader = NULL,
   cluster_id,
   node_id,
   cluster_tooltip = NULL,
@@ -66,10 +68,32 @@ mod_citation_network_view_server <- function(
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     graph_tbl_local <- graph_tbl
+    has_lazy_graphs <- is.null(graph_tbl_local) &&
+      !is.null(graph_index) &&
+      is.function(graph_loader)
 
-    is_list_graph <- is.list(graph_tbl_local) &&
-      all(purrr::map_lgl(graph_tbl_local, ~ inherits(.x, "tbl_graph")))
-    if (is_list_graph && is.null(names(graph_tbl_local))) {
+    if (has_lazy_graphs) {
+      if (is.data.frame(graph_index) &&
+          all(c("key", "label") %in% names(graph_index))) {
+        graph_keys <- as.character(graph_index$key)
+        graph_labels <- as.character(graph_index$label)
+      } else {
+        graph_keys <- as.character(graph_index)
+        graph_labels <- ifelse(
+          grepl("^\\d{4}$", graph_keys),
+          paste0(graph_keys, "-", as.integer(graph_keys) + 7),
+          graph_keys
+        )
+      }
+    }
+
+    is_list_graph <- if (has_lazy_graphs) {
+      TRUE
+    } else {
+      is.list(graph_tbl_local) &&
+        all(purrr::map_lgl(graph_tbl_local, ~ inherits(.x, "tbl_graph")))
+    }
+    if (!has_lazy_graphs && is_list_graph && is.null(names(graph_tbl_local))) {
       stop(
         "The list of graphs must be named so time windows can be selected.",
         call. = FALSE
@@ -91,12 +115,17 @@ mod_citation_network_view_server <- function(
       if (!is_list_graph) {
         return(NULL)
       }
-      window_vals <- names(graph_tbl_local)
-      window_labels <- ifelse(
-        grepl("^\\d{4}$", window_vals),
-        paste0(window_vals, "-", as.integer(window_vals) + 7),
-        window_vals
-      )
+      if (has_lazy_graphs) {
+        window_vals <- graph_keys
+        window_labels <- graph_labels
+      } else {
+        window_vals <- names(graph_tbl_local)
+        window_labels <- ifelse(
+          grepl("^\\d{4}$", window_vals),
+          paste0(window_vals, "-", as.integer(window_vals) + 7),
+          window_vals
+        )
+      }
       shinyWidgets::sliderTextInput(
         inputId = ns("selected_graph"),
         label = "Time window",
@@ -110,13 +139,17 @@ mod_citation_network_view_server <- function(
     selected_graph <- reactive({
       if (is_list_graph) {
         req(input$selected_graph)
-        window_vals <- names(graph_tbl_local)
-        window_labels <- ifelse(
-          grepl("^\\d{4}$", window_vals),
-          paste0(window_vals, "-", as.integer(window_vals) + 7),
-          window_vals
-        )
-        window_vals[[match(input$selected_graph, window_labels)]]
+        if (has_lazy_graphs) {
+          graph_keys[[match(input$selected_graph, graph_labels)]]
+        } else {
+          window_vals <- names(graph_tbl_local)
+          window_labels <- ifelse(
+            grepl("^\\d{4}$", window_vals),
+            paste0(window_vals, "-", as.integer(window_vals) + 7),
+            window_vals
+          )
+          window_vals[[match(input$selected_graph, window_labels)]]
+        }
       } else {
         NULL
       }
@@ -125,31 +158,16 @@ mod_citation_network_view_server <- function(
     active_graph <- reactive({
       if (is_list_graph) {
         req(selected_graph())
-        graph_tbl_local[[selected_graph()]]
+        if (has_lazy_graphs) {
+          graph_loader(selected_graph())
+        } else {
+          graph_tbl_local[[selected_graph()]]
+        }
       } else {
         graph_tbl_local
       }
     })
 
-    all_nodes_df <- reactive({
-      if (is_list_graph) {
-        purrr::imap_dfr(graph_tbl_local, function(g, nm) {
-          df <- tidygraph::activate(g, "nodes") |> as.data.frame()
-          df$.graph <- nm
-          if (!"time_window" %in% names(df)) {
-            df$time_window <- nm
-          }
-          df
-        })
-      } else {
-        df <- tidygraph::activate(graph_tbl_local, "nodes") |> as.data.frame()
-        df$.graph <- "graph"
-        if (!"time_window" %in% names(df)) {
-          df$time_window <- NA_character_
-        }
-        df
-      }
-    })
 
     output$plot <- ggiraph::renderGirafe({
       if (!is.null(precomputed_plots)) {
@@ -293,7 +311,6 @@ mod_citation_network_view_server <- function(
       selected_cluster = selected_cluster,
       selected_graph = selected_graph,
       active_graph = active_graph,
-      all_nodes_df = all_nodes_df,
       is_list_graph = reactive(is_list_graph),
       id_chr = id_chr,
       cluster_chr = cluster_chr

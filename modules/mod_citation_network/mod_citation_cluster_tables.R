@@ -107,7 +107,6 @@ mod_citation_cluster_tables_server <- function(
     selected_cluster <- view_state$selected_cluster
     selected_graph <- view_state$selected_graph
     active_graph <- view_state$active_graph
-    all_nodes_df <- view_state$all_nodes_df
     is_list_graph <- view_state$is_list_graph
     id_chr <- view_state$id_chr
     cluster_chr <- view_state$cluster_chr

@@ -11,7 +11,9 @@ modules_citation_network_ui <- function(id) {
 
 modules_citation_network_server <- function(
   id,
-  graph_tbl,
+  graph_tbl = NULL,
+  graph_index = NULL,
+  graph_loader = NULL,
   cluster_id,
   cluster_information,
   node_id,
@@ -30,6 +32,8 @@ modules_citation_network_server <- function(
     view_state <- mod_citation_network_view_server(
       "view",
       graph_tbl = graph_tbl,
+      graph_index = graph_index,
+      graph_loader = graph_loader,
       cluster_id = cluster_id,
       node_id = node_id,
       cluster_tooltip = cluster_tooltip,

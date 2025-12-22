@@ -419,6 +419,44 @@ graphs <- lapply(graphs, function(graph) {
 })
 
 # ------------------------------------------------------------
+# Save smaller, lazy-loadable files for the app
+# ------------------------------------------------------------
+
+bibliometrics_dir <- file.path("data", "bibliometrics")
+graphs_dir <- file.path(bibliometrics_dir, "graphs")
+dir.create(graphs_dir, recursive = TRUE, showWarnings = FALSE)
+
+graph_keys <- names(graphs)
+graph_labels <- ifelse(
+  grepl("^\\d{4}$", graph_keys),
+  paste0(graph_keys, "-", as.integer(graph_keys) + 7),
+  graph_keys
+)
+bibliometrics_index <- data.frame(
+  key = graph_keys,
+  label = graph_labels,
+  stringsAsFactors = FALSE
+)
+saveRDS(bibliometrics_index, file.path(bibliometrics_dir, "index.rds"))
+
+purrr::iwalk(
+  graphs,
+  ~ saveRDS(.x, file.path(graphs_dir, paste0(.y, ".rds")))
+)
+
+saveRDS(
+  list(
+    closest_sentences = closest_sentences,
+    top_refs = top_refs,
+    top_refs_without_id = top_refs_without_id,
+    cluster_origins = cluster_origins,
+    cluster_destinies = cluster_destinies,
+    tf_idf = tf_idf
+  ),
+  file.path(bibliometrics_dir, "tables.rds")
+)
+
+# ------------------------------------------------------------
 # Save all data required for the app
 # ------------------------------------------------------------
 
