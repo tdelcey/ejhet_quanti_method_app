@@ -27,19 +27,13 @@ mod_network_view_ui <- function(id) {
     callout_box(
       title = "Static view",
       icon = "\U0001F5A7", # 🖧
-      text = "Clusters are positioned using a force-directed layout based on 
-              semantic similarity between representative vectors. Visualization focuses on static clusters relationships.",
+      text = "Each node is an HDBSCAN cluster; colors indicate groups of clusters.
+              In static mode, clusters are positioned using a force-directed layout based on semantic similarity 
+              between representative vectors. Visualization focuses on clusters relationships.
+              In temporal mode, clusters are ordered chronologically along the x-axis based on the window in which they emerge. 
+              Visualization focuses on the evolution of clusters over time.",
       border = "#00796B",
       bg = "#E0F2F1"
-    ),
-
-    callout_box(
-      title = "Temporal view",
-      icon = "\U0001F4C8", # 📈
-      text = "Clusters are ordered chronologically along the x-axis according to 
-              the window in which they emerge. Visualization focuses on the evolution of clusters relationships over time.",
-      border = "#283593",
-      bg = "#E8EAF6"
     ),
 
     # ---- Switch between static and temporal ----

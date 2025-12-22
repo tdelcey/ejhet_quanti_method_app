@@ -44,7 +44,12 @@ list_ids <- lapply(graphs, function(graph) {
 refs <- ref_dataset %>%
   filter(ID_Art %in% list_ids) %>%
   select(ID_Art, ItemID_Ref, Annee, Nom, Revue_Abbrege) %>%
-  collect()
+  collect() %>%
+  rename(
+    year = Annee,
+    name = Nom,
+    journal_abbrev = Revue_Abbrege
+  )
 
 labels <- readRDS(file.path(
   ejhet_project,
@@ -72,6 +77,7 @@ graphs <- lapply(graphs, function(graph) {
       metadata,
       by = "ID_Art"
     )
+  graph
 })
 
 sentences <- arrow::read_feather(file.path(
@@ -98,14 +104,20 @@ graphs <- lapply(graphs, function(graph) {
     activate(nodes) %>%
     left_join(labels, by = c("dynamic_cluster_leiden" = "id_col")) %>%
     left_join(article_sentences, by = c("id_text" = "id")) %>%
+    rename(
+      name = Nom,
+      year = Annee_Bibliographique,
+      title = Titre,
+      journal = Revue
+    ) %>%
     arrange(desc(node_size)) %>%
     mutate(
       nodes_tooltip = paste0(
-        Nom,
+        name,
         " (",
-        Annee_Bibliographique,
+        year,
         ") ",
-        Titre
+        title
       ) %>%
         str_replace_all(., "[:punct:]", " ") %>%
         str_squish(),
@@ -178,10 +190,10 @@ nodes <- map(graphs, ~ . %N>% as_tibble()) %>%
   mutate(
     value_col = if_else(is.na(value_col), dynamic_cluster_leiden, value_col),
     ID_Art = as.integer(ID_Art),
-    Titre = if_else(
+    title = if_else(
       !is.na(url),
-      glue("<a href='{url}' target='_blank'>{Titre}</a>"),
-      Titre
+      glue("<a href='{url}' target='_blank'>{title}</a>"),
+      title
     )
   )
 
@@ -200,7 +212,7 @@ top_refs <- references_cited %>%
   ungroup() %>%
   filter(n > 1) %>%
   left_join(
-    refs %>% distinct(ItemID_Ref, Nom, Annee, Revue_Abbrege),
+    refs %>% distinct(ItemID_Ref, name, year, journal_abbrev),
     by = "ItemID_Ref",
     relationship = "many-to-many"
   ) %>%
@@ -209,8 +221,8 @@ top_refs <- references_cited %>%
 top_refs_without_id <- nodes %>%
   distinct(ID_Art, value_col, time_window) %>%
   left_join(refs, by = "ID_Art", relationship = "many-to-many") %>%
-  filter(ItemID_Ref == 0 & Annee != 0 & Nom != "") %>%
-  group_by(value_col, time_window, Nom, Annee) %>%
+  filter(ItemID_Ref == 0 & year != 0 & name != "") %>%
+  group_by(value_col, time_window, name, year) %>%
   add_count() %>%
   filter(n > 1) %>%
   distinct(ID_Art, value_col, time_window, .keep_all = TRUE) %>%
@@ -218,8 +230,8 @@ top_refs_without_id <- nodes %>%
   group_by(time_window, value_col) %>%
   slice_head(n = 10) %>%
   ungroup() %>%
-  select(value_col, time_window, Nom, Annee, Revue_Abbrege, nb_cit = n) %>%
-  distinct(value_col, time_window, Nom, Annee, .keep_all = TRUE)
+  select(value_col, time_window, name, year, journal_abbrev, nb_cit = n) %>%
+  distinct(value_col, time_window, name, year, .keep_all = TRUE)
 
 rm(refs)
 
@@ -264,9 +276,8 @@ closest_sentences <- sentences %>%
     select(
       nodes,
       id_text,
-      Annee_Bibliographique,
-      Nom,
-      Titre,
+      name,
+      title,
       value_col,
       time_window
     ),
@@ -276,9 +287,9 @@ closest_sentences <- sentences %>%
   distinct(
     value_col,
     time_window,
-    Annee_Bibliographique,
-    Nom,
-    Titre,
+    year,
+    name,
+    title,
     sentence,
     similarity_rv
   ) %>%
@@ -381,7 +392,7 @@ cli::cli_alert_info("Calculating tf-idf per cluster per time window...")
 tf_idf <- networkflow::extract_tfidf(
   graphs,
   n_gram = 3,
-  text_column = "Titre",
+  text_column = "title",
   grouping_column = "value_col",
   grouping_across_list = TRUE,
   nb_terms = 20
@@ -395,10 +406,10 @@ graphs <- lapply(graphs, function(graph) {
   graph <- graph %>%
     activate(nodes) %>%
     mutate(
-      Titre = if_else(
+      title = if_else(
         !is.na(url),
-        glue("<a href='{url}' target='_blank'>{Titre}</a>"),
-        Titre
+        glue("<a href='{url}' target='_blank'>{title}</a>"),
+        title
       )
     )
 })
@@ -456,19 +467,3 @@ saveRDS(
   file.path(bibliometrics_dir, "tables.rds")
 )
 
-# ------------------------------------------------------------
-# Save all data required for the app
-# ------------------------------------------------------------
-
-saveRDS(
-  list(
-    graphs = graphs,
-    closest_sentences = closest_sentences,
-    top_refs = top_refs,
-    top_refs_without_id = top_refs_without_id,
-    cluster_origins = cluster_origins,
-    cluster_destinies = cluster_destinies,
-    tf_idf = tf_idf
-  ),
-  file.path("data", "data_for_app_bibliometrics.RDS")
-)

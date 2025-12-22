@@ -23,6 +23,8 @@ mod_cluster_tables_ui <- function(id) {
       "Cluster details"
     ),
 
+    uiOutput(ns("selected_cluster_label")),
+
     p("Click a node in the network to explore its content."),
 
     tabsetPanel(
@@ -107,9 +109,31 @@ mod_cluster_tables_server <- function(
   tfidf_hdbscan,
   sentences_tbl,
   top_articles,
-  top_refs
+  top_refs,
+  cluster_labels
 ) {
   moduleServer(id, function(input, output, session) {
+    output$selected_cluster_label <- renderUI({
+      cid <- selected_cluster()
+      label <- "Selected cluster: none"
+      if (!is.null(cid) && cid != "") {
+        display_label <- cluster_labels %>%
+          dplyr::filter(cluster_id == cid) %>%
+          dplyr::pull(label_hdbscan_cluster) %>%
+          unique()
+        display_label <- display_label[!is.na(display_label)]
+        if (length(display_label) > 0) {
+          label <- paste0("Selected cluster: ", display_label[[1]])
+        } else {
+          label <- "Selected cluster: unknown"
+        }
+      }
+      div(
+        style = "margin:6px 0 12px; font-size:13px; color:#444;",
+        label
+      )
+    })
+
     # TF-IDF ---------------------------------------------------------------
     output$tfidf <- DT::renderDT({
       cid <- selected_cluster()
@@ -230,11 +254,10 @@ mod_cluster_tables_server <- function(
       }
       df <- top_refs %>%
         filter(cluster_id == cid) %>%
-        select(Nom, Annee, Revue_Abbrege, has_id, absolute_cluster_cit) %>%
+        select(name, year, journal_abbrev, has_id, absolute_cluster_cit) %>%
         rename(
-          title = Nom,
-          year = Annee,
-          journal = Revue_Abbrege,
+          title = name,
+          journal = journal_abbrev,
           n_citations = absolute_cluster_cit
         ) %>%
         arrange(desc(n_citations))

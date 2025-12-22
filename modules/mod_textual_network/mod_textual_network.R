@@ -35,13 +35,19 @@ modules_textual_network_server <- function(
       temporal_plot = temporal_plot
     )
 
+    cluster_labels <- backbone_network %>%
+      tidygraph::activate("nodes") %>%
+      as.data.frame() %>%
+      dplyr::distinct(cluster_id, label_hdbscan_cluster)
+
     mod_cluster_tables_server(
       "tables",
       selected_cluster,
       tfidf_hdbscan,
       sentences_tbl,
       top_articles,
-      top_refs
+      top_refs,
+      cluster_labels
     )
   })
 }

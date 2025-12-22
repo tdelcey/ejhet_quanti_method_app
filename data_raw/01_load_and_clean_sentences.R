@@ -142,7 +142,12 @@ refs <- open_dataset(
 ) %>%
   filter(ID_Art %in% unique(sentences_art$id_wos_matched)) %>%
   distinct(ID_Art, ItemID_Ref, Annee, Nom, Revue_Abbrege) %>%
-  collect()
+  collect() %>%
+  rename(
+    year = Annee,
+    name = Nom,
+    journal_abbrev = Revue_Abbrege
+  )
 
 write_rds(sentences_art, here("data_raw", "sentences_art.rds"))
 write_rds(refs, here("data_raw", "references_wos.rds"))

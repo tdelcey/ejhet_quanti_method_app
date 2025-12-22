@@ -58,7 +58,11 @@ ui <- fluidPage(
     type = "pills",
     selected = "Textual network",
     tabPanel("Textual network", modules_textual_network_ui("textnet")),
-    tabPanel("Citation network", modules_citation_network_ui("citnet"))
+    tabPanel("Citation network", modules_citation_network_ui("citnet")),
+    tabPanel(
+      "About",
+      div(style = "padding:10px;", includeMarkdown("www/about.md"))
+    )
   )
 )
 
@@ -89,48 +93,40 @@ server <- function(input, output, session) {
   bibliometrics_graphs_dir <- here::here("data", "bibliometrics", "graphs")
 
   if (
-    file.exists(bibliometrics_index_path) &&
-      file.exists(bibliometrics_tables_path) &&
-      dir.exists(bibliometrics_graphs_dir)
+    !file.exists(bibliometrics_index_path) ||
+      !file.exists(bibliometrics_tables_path) ||
+      !dir.exists(bibliometrics_graphs_dir)
   ) {
-    biblio_index <- readRDS(bibliometrics_index_path)
-    biblio_tables <- readRDS(bibliometrics_tables_path)
-
-    graph_loader <- function(key) {
-      readRDS(file.path(bibliometrics_graphs_dir, paste0(key, ".rds")))
-    }
-
-    citation_graphs <- NULL
-    closest_sentences <- biblio_tables$closest_sentences
-    top_refs_citation <- biblio_tables$top_refs
-    top_refs_without_id <- biblio_tables$top_refs_without_id
-    cluster_origins <- biblio_tables$cluster_origins
-    cluster_destinies <- biblio_tables$cluster_destinies
-    tf_idf <- biblio_tables$tf_idf
-  } else {
-    bibliometrics_data <- readRDS(
-      file.path(ejhet_project, "data_for_app_bibliometrics.RDS")
+    stop(
+      "Missing lazy bibliometrics files. Run the data prep scripts to create ",
+      "data/bibliometrics/index.rds, data/bibliometrics/tables.rds, and ",
+      "data/bibliometrics/graphs/.",
+      call. = FALSE
     )
-
-    biblio_index <- NULL
-    graph_loader <- NULL
-
-    citation_graphs <- bibliometrics_data$graphs
-    closest_sentences <- bibliometrics_data$closest_sentences
-    top_refs_citation <- bibliometrics_data$top_refs
-    top_refs_without_id <- bibliometrics_data$top_refs_without_id
-    cluster_origins <- bibliometrics_data$cluster_origins
-    cluster_destinies <- bibliometrics_data$cluster_destinies
-    tf_idf <- bibliometrics_data$tf_idf
   }
+
+  biblio_index <- readRDS(bibliometrics_index_path)
+  biblio_tables <- readRDS(bibliometrics_tables_path)
+
+  graph_loader <- function(key) {
+    readRDS(file.path(bibliometrics_graphs_dir, paste0(key, ".rds")))
+  }
+
+  citation_graphs <- NULL
+  closest_sentences <- biblio_tables$closest_sentences
+  top_refs_citation <- biblio_tables$top_refs
+  top_refs_without_id <- biblio_tables$top_refs_without_id
+  cluster_origins <- biblio_tables$cluster_origins
+  cluster_destinies <- biblio_tables$cluster_destinies
+  tf_idf <- biblio_tables$tf_idf
   citation_plots <- readRDS(
     here::here("data_raw", "plots", "citation_network_plots.rds")
   )
 
   citation_cluster_information <- c(
-    "Nom",
-    "Annee_Bibliographique",
-    "Titre",
+    "name",
+    "bibliographic_year",
+    "title",
     "role",
     "participation_coefficient",
     "z_within",

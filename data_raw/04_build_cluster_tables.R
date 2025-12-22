@@ -143,9 +143,9 @@ top_refs <- sentences_art %>%
   ) %>%
   reframe(
     absolute_cluster_cit = n(),
-    Nom = first(Nom),
-    Annee = first(Annee),
-    Revue_Abbrege = first(Revue_Abbrege)
+    name = first(name),
+    year = first(year),
+    journal_abbrev = first(journal_abbrev)
   ) %>%
   group_by(backbone_community, HDBSCAN_cluster, window) %>%
   slice_max(order_by = absolute_cluster_cit, n = 15) %>%
@@ -158,18 +158,18 @@ top_refs_noid <- sentences_art %>%
     by = c("id_wos_matched" = "ID_Art"),
     relationship = "many-to-many"
   ) %>%
-  filter(ItemID_Ref == 0 & Nom != "" & Annee != 0) %>%
+  filter(ItemID_Ref == 0 & name != "" & year != 0) %>%
   group_by(
     backbone_community,
     HDBSCAN_cluster,
     cluster_id,
     window,
-    Nom,
-    Annee
+    name,
+    year
   ) %>%
   reframe(
     absolute_cluster_cit = n(),
-    Revue_Abbrege = first(Revue_Abbrege)
+    journal_abbrev = first(journal_abbrev)
   ) %>%
   group_by(backbone_community, HDBSCAN_cluster, window) %>%
   slice_max(order_by = absolute_cluster_cit, n = 15) %>%

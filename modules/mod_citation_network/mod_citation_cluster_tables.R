@@ -23,6 +23,8 @@ mod_citation_cluster_tables_ui <- function(id) {
       "Cluster details"
     ),
 
+    uiOutput(ns("selected_cluster_label")),
+
     p("Click a cluster label to explore its content."),
 
     tabsetPanel(
@@ -39,7 +41,7 @@ mod_citation_cluster_tables_ui <- function(id) {
         "TF-IDF",
         callout_box(
           "Interpretation",
-          "TF-IDF highlights terms that are specific to a cluster compared to the full period."
+          "TF-IDF highlights terms that are specific to a cluster compared to all articles across all time windows."
         ),
         DTOutput(ns("cluster_tf_idf"))
       ),
@@ -130,6 +132,19 @@ mod_citation_cluster_tables_server <- function(
       DT::formatStyle(dt, columns = names(data), fontSize = "11px")
     }
 
+    output$selected_cluster_label <- renderUI({
+      cid <- selected_cluster()
+      label <- if (is.null(cid) || cid == "") {
+        "Selected cluster: none"
+      } else {
+        paste0("Selected cluster: ", cid)
+      }
+      div(
+        style = "margin:6px 0 12px; font-size:13px; color:#444;",
+        label
+      )
+    })
+
     output$cluster_share <- DT::renderDT({
       g_tbl <- active_graph()
       nodes <- tidygraph::activate(g_tbl, "nodes") %>% as.data.frame()
@@ -216,7 +231,7 @@ mod_citation_cluster_tables_server <- function(
         dplyr::filter(
           as.character(.data[[cluster_id]]) == as.character(selected_cluster())
         ) %>%
-        dplyr::select(Nom, Annee, Revue_Abbrege, nb_cit, has_id) %>%
+        dplyr::select(name, year, journal_abbrev, nb_cit, has_id) %>%
         dplyr::arrange(dplyr::desc(nb_cit))
 
       if (isTRUE(input$refs_with_id_only)) {
