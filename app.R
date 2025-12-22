@@ -59,12 +59,10 @@ ui <- fluidPage(
     selected = "Textual network",
     tabPanel("Textual network", modules_textual_network_ui("textnet")),
     tabPanel("Citation network", modules_citation_network_ui("citnet")),
-    tabPanel(
-      "About",
-      div(style = "padding:10px;", includeMarkdown("www/about.md"))
-    )
+    tabPanel("About", mod_about_ui("about"))
   )
 )
+
 
 server <- function(input, output, session) {
   # réseau
