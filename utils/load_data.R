@@ -1,5 +1,5 @@
 load_data <- function(name) {
-  readRDS(file.path("data", paste0(name, ".rds")))
+  readRDS(here::here("data", paste0(name, ".rds")))
 }
 
 

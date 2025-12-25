@@ -20,7 +20,7 @@ mod_citation_network_view_ui <- function(id) {
         border-left:5px solid #00897B;
         margin-bottom:15px;
       ",
-      "Citation network"
+      "Network of bibliographic coupling"
     ),
 
     callout_box(
@@ -73,8 +73,10 @@ mod_citation_network_view_server <- function(
       is.function(graph_loader)
 
     if (has_lazy_graphs) {
-      if (is.data.frame(graph_index) &&
-          all(c("key", "label") %in% names(graph_index))) {
+      if (
+        is.data.frame(graph_index) &&
+          all(c("key", "label") %in% names(graph_index))
+      ) {
         graph_keys <- as.character(graph_index$key)
         graph_labels <- as.character(graph_index$label)
       } else {
@@ -167,7 +169,6 @@ mod_citation_network_view_server <- function(
         graph_tbl_local
       }
     })
-
 
     output$plot <- ggiraph::renderGirafe({
       if (!is.null(precomputed_plots)) {
