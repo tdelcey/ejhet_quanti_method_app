@@ -5,14 +5,12 @@
 
 source(here::here("data_raw", "paths_and_packages.R"))
 source(here::here("utils", "text_functions.R"))
-p_load(tidyverse, data.table, arrow, ggraph, tidygraph, scico, tidyr)
+p_load(tidyverse, data.table, arrow, ggraph, tidygraph, scico, tidyr, here)
 
 # ------------------------------------------------------------
 # Load data from script 01
 # ------------------------------------------------------------
 sentences <- read_rds(here("data_raw", "sentences_cleaned.rds"))
-sentences_art <- read_rds(here("data_raw", "sentences_art.rds"))
-refs <- read_rds(here("data_raw", "references_wos.rds"))
 backbone_network_raw <- read_rds(here("data_raw", "backbone_network_raw.rds"))
 window_levels <- read_rds(here("data", "window_levels.rds"))
 
@@ -163,6 +161,7 @@ write_rds(
 # ------------------------------------------------------------
 # 3. Build the enriched backbone network
 # ------------------------------------------------------------
+
 backbone_network <- backbone_network_raw %>%
   activate("nodes") %>%
   left_join(
@@ -181,6 +180,7 @@ backbone_network <- backbone_network_raw %>%
 # # ------------------------------------------------------------
 # # 4. Edge-level community assignment
 # # ------------------------------------------------------------
+
 # backbone_network <- backbone_network %>%
 #   tidygraph::activate("edges") %>%
 #   dplyr::mutate(
@@ -195,10 +195,12 @@ backbone_network <- backbone_network_raw %>%
 #       "#DDDDDD" # gris inter-communautés
 #     )
 #   )
+
 # ------------------------------------------------------------
-# 5. Compute community ordering (comm_levels)
+# 5. COMPUTE BACKBONE CLUSTER
 # ------------------------------------------------------------
-# Compute backbone centroids by community
+
+# Compute centroid
 
 emb <- sentences[, .(embedding = embedding), by = backbone_community]
 emb <- emb[,
@@ -211,12 +213,11 @@ emb <- emb[,
 
 # Build centroid matrix
 centroid_mat <- do.call(rbind, emb$centroid)
-mat_scaled <- scale(centroid_mat)
 
 # Cosine similarity
-row_norms <- sqrt(rowSums(mat_scaled^2))
+row_norms <- sqrt(rowSums(centroid_mat^2))
 row_norms[row_norms == 0] <- NA_real_
-sim_mat <- (mat_scaled %*% t(mat_scaled)) / (row_norms %o% row_norms)
+sim_mat <- (centroid_mat %*% t(centroid_mat)) / (row_norms %o% row_norms)
 
 # Hierarchical clustering
 d <- as.dist(1 - sim_mat)
@@ -228,22 +229,45 @@ write_rds(comm_levels, here("data_raw", "comm_levels.rds"))
 # ------------------------------------------------------------
 # 6. Color palette
 # ------------------------------------------------------------
+
 nb_clusters <- length(comm_levels)
 palette_colors <- scico::scico(n = nb_clusters, palette = "roma")
 cluster_colors <- palette_colors
 names(cluster_colors) <- comm_levels
 
-write_rds(cluster_colors, here("data", "cluster_colors.rds"))
+# write_rds(cluster_colors, here("data", "cluster_colors.rds"))
 
-# ------------------------------------------------------------
-# 7. Compute layout (fa2)
-# ------------------------------------------------------------
+backbone_network <- backbone_network %>%
+  tidygraph::activate("nodes") %>%
+  dplyr::mutate(
+    fill_color = cluster_colors[as.character(backbone_community)]
+  )
 
 backbone_network <- backbone_network %>%
   activate("edges") %>%
   rename(weight = oldweight) %>%
+  mutate(
+    comm_from = .N()[["backbone_community"]][from],
+    comm_to = .N()[["backbone_community"]][to],
+    same_comm = comm_from == comm_to,
+    edge_color = ifelse(
+      same_comm,
+      .N()[["fill_color"]][from],
+      "#CCCCCC"
+    ),
+    edge_width = ifelse(
+      same_comm,
+      weight,
+      weight * 0.5
+    )
+  ) %>%
   activate("nodes") %>%
   mutate(size = proportion_hdbscan_cluster) # for repelling in force atlas
+
+
+# ------------------------------------------------------------
+# 7. Compute layout (fa2)
+# ------------------------------------------------------------
 
 run_force_atlas <- TRUE
 if (run_force_atlas) {

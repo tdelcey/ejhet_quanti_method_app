@@ -1,9 +1,10 @@
-plot_network_interactive_static <- function(graph, cluster_colors) {
-  # 1. Appliquer la couleur aux NOEUDS à partir de cluster_colors
+plot_textual_network_static <- function(graph) {
+  # 1. Apply node colors (fallback) + tooltip
   graph <- graph %>%
-    tidygraph::activate("nodes") %>%
+    tidygraph::activate("nodes")
+
+  graph <- graph %>%
     dplyr::mutate(
-      fill_color = cluster_colors[as.character(backbone_community)],
       tooltip = paste0(
         "HDBSCAN_cluster: ",
         HDBSCAN_cluster,
@@ -16,33 +17,12 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
       )
     )
 
-  # 2. Couleurs des ARÊTES = couleur du nœud "from"
-  graph <- graph %>%
-    tidygraph::activate("edges") %>%
-    dplyr::mutate(
-      comm_from = .N()[["backbone_community"]][from],
-      comm_to = .N()[["backbone_community"]][to],
-      same_comm = comm_from == comm_to,
-
-      # couleur de l'arête = couleur du node from si même communauté
-      edge_color = ifelse(
-        same_comm,
-        .N()[["fill_color"]][from],
-        "#CCCCCC" # gris clair pour inter-communauté
-      ),
-      edge_width = ifelse(
-        same_comm,
-        weight, # keep original width for intra-community
-        weight * 0.5 # shrink inter-community edges
-      )
-    )
-
-  # 3. Dataframe pour les noeuds
+  # 2. Nodes table
   nodes_df <- graph %>%
     tidygraph::activate("nodes") %>%
     dplyr::as_tibble()
 
-  # 4. Dataframe pour les labels statiques
+  # 3 Label table
   label_df <- nodes_df %>%
     dplyr::group_by(backbone_community) %>%
     dplyr::summarise(
@@ -53,11 +33,8 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
       .groups = "drop"
     )
 
-  # 5. Plot ggraph
+  # 4. Plot
   p <- ggraph::ggraph(graph, layout = "manual", x = x, y = y) +
-
-    # --- ARÊTES ---
-    # Couleur hex directe : ggplot ne remappe plus rien
     ggraph::geom_edge_link0(
       ggplot2::aes(
         color = I(edge_color),
@@ -66,9 +43,9 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
       alpha = 0.9,
       show.legend = FALSE
     ) +
-
-    # --- NOEUDS ---
-    # On colore par fill_color (hex direct)
+    scale_size_continuous(range = c(2, 15)) +
+    scale_edge_width(range = c(0.3, 1.2)) +
+    ggplot2::theme_void() +
     ggiraph::geom_point_interactive(
       data = nodes_df,
       ggplot2::aes(
@@ -83,8 +60,6 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
       alpha = 0.9,
       show.legend = FALSE,
     ) +
-
-    # --- LABELS ---
     ggrepel::geom_label_repel(
       data = label_df,
       ggplot2::aes(
@@ -100,13 +75,7 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
       label.r = unit(0.15, "lines"),
       alpha = 0.95,
       seed = 42
-    ) +
-
-    # --- SCALING ---
-    scale_size_continuous(range = c(2, 15)) +
-    scale_edge_width(range = c(0.3, 1.2)) +
-
-    ggplot2::theme_void()
+    )
 
   # 6. Girafe interactive
   ggiraph::girafe(
@@ -122,17 +91,35 @@ plot_network_interactive_static <- function(graph, cluster_colors) {
 }
 
 
-plot_network_interactive_dynamic <- function(
-  temporal_backbone_network,
-  cluster_colors,
-  community_label_positions,
-  window_levels
+plot_textual_network_dynamic <- function(
+  temporal_backbone_network
 ) {
-  # 1. Add fill_color + tooltip to nodes (same as static)
+  community_label_positions <- attr(
+    temporal_backbone_network,
+    "community_label_positions"
+  )
+  window_levels <- attr(temporal_backbone_network, "window_levels")
+  if (is.null(community_label_positions) || is.null(window_levels)) {
+    stop(
+      "Missing temporal inputs: set attributes on temporal_backbone_network ",
+      "for community_label_positions and window_levels."
+    )
+  }
+  # 1. Add node colors (fallback) + tooltip
   graph <- temporal_backbone_network %>%
-    tidygraph::activate("nodes") %>%
+    tidygraph::activate("nodes")
+  if (!"fill_color" %in% colnames(graph %>% dplyr::as_tibble())) {
+    cluster_colors <- attr(temporal_backbone_network, "cluster_colors")
+    if (is.null(cluster_colors)) {
+      stop("Missing cluster_colors attribute for temporal_backbone_network.")
+    }
+    graph <- graph %>%
+      mutate(
+        fill_color = cluster_colors[as.character(backbone_community)]
+      )
+  }
+  graph <- graph %>%
     mutate(
-      fill_color = cluster_colors[as.character(backbone_community)],
       tooltip = paste0(
         "HDBSCAN_cluster: ",
         HDBSCAN_cluster,
@@ -149,26 +136,9 @@ plot_network_interactive_dynamic <- function(
       )
     )
 
-  # 2. Compute edge colors = color of node 'from' (same logic as static)
+  # 2. Edge colors are expected to be precomputed in the graph
   graph <- graph %>%
-    tidygraph::activate("edges") %>%
-    mutate(
-      comm_from = .N()[["backbone_community"]][from],
-      comm_to = .N()[["backbone_community"]][to],
-      same_comm = comm_from == comm_to,
-
-      edge_color = ifelse(
-        same_comm,
-        .N()[["fill_color"]][from], # color of source node
-        "#CCCCCC" # grey for inter-community edges
-      ),
-
-      edge_width = ifelse(
-        same_comm,
-        1.3, # width intra-community
-        0.8 # thin inter-community
-      )
-    )
+    tidygraph::activate("edges")
 
   nodes_df <- graph %>%
     tidygraph::activate("nodes") %>%
@@ -181,7 +151,6 @@ plot_network_interactive_dynamic <- function(
     x = x,
     y = y
   ) +
-    # --- EDGES ---
     geom_edge_link(
       aes(
         color = I(edge_color),
@@ -190,8 +159,6 @@ plot_network_interactive_dynamic <- function(
       alpha = 0.9,
       show.legend = FALSE
     ) +
-
-    # --- NODES ---
     ggiraph::geom_point_interactive(
       data = nodes_df,
       aes(
@@ -206,23 +173,18 @@ plot_network_interactive_dynamic <- function(
       alpha = 0.9,
       show.legend = FALSE
     ) +
-
-    # --- SCALES ---
     scale_size_continuous(range = c(2, 15)) +
     scale_edge_width(range = c(0.3, 1.2)) +
     scale_x_continuous(
       breaks = seq_along(window_levels),
       labels = window_levels
     ) +
-
     scale_y_continuous(
       breaks = community_label_positions$baseline,
       labels = community_label_positions$label,
       expand = expansion(add = c(0.9, 0.9))
     ) +
-
     labs(x = NULL, y = NULL) +
-
     theme_minimal() +
     theme(
       panel.grid = element_blank(),

@@ -1,6 +1,6 @@
-# modules/mod_cluster_tables.R
+# modules/textual/tables_textual_cluster.R
 
-mod_cluster_tables_ui <- function(id) {
+tables_textual_cluster_ui <- function(id) {
   ns <- NS(id)
 
   div(
@@ -103,7 +103,7 @@ mod_cluster_tables_ui <- function(id) {
 }
 
 
-mod_cluster_tables_server <- function(
+tables_textual_cluster_server <- function(
   id,
   selected_cluster,
   tfidf_hdbscan,

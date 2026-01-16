@@ -58,8 +58,8 @@ ui <- fluidPage(
   tabsetPanel(
     type = "pills",
     selected = "Textual network",
-    tabPanel("Textual network", modules_textual_network_ui("textnet")),
-    tabPanel("Citation network", modules_citation_network_ui("citnet")),
+    tabPanel("Textual network", page_textual_network_ui("textual_network")),
+    tabPanel("Citation network", page_citation_network_ui("citation_network")),
     tabPanel("About", mod_about_ui("about"))
   )
 )
@@ -67,17 +67,13 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   # réseau
-  backbone_network <- load_data("backbone_network")
-  cluster_colors <- load_data("cluster_colors")
-  temporal_backbone_network <- load_data("temporal_backbone_network")
-  community_label_positions <- load_data("community_label_positions")
-  window_levels <- load_data("window_levels")
 
   # tables pour les DT
   tfidf_hdbscan <- load_data("tfidf_tables")$top_terms_hdbscan_cluster
   sentences_tbl <- load_data("cluster_sentences")
   top_articles <- load_data("cluster_top_articles")
   top_refs <- load_data("cluster_top_references")
+  cluster_labels <- load_data("cluster_labels")
 
   # precomputed plots
   textual_plots <- readRDS(here::here(
@@ -133,23 +129,19 @@ server <- function(input, output, session) {
     "share_ref_cluster"
   )
 
-  modules_textual_network_server(
-    id = "textnet",
-    backbone_network = backbone_network,
-    temporal_backbone_network = temporal_backbone_network,
-    cluster_colors = cluster_colors,
-    community_label_positions = community_label_positions,
-    window_levels = window_levels,
+  page_textual_network_server(
+    id = "textual_network",
     tfidf_hdbscan = tfidf_hdbscan,
     sentences_tbl = sentences_tbl,
     top_articles = top_articles,
     top_refs = top_refs,
+    cluster_labels = cluster_labels,
     static_plot = textual_plots$static,
     temporal_plot = textual_plots$temporal
   )
 
-  modules_citation_network_server(
-    id = "citnet",
+  page_citation_network_server(
+    id = "citation_network",
     graph_tbl = citation_graphs,
     graph_index = biblio_index,
     graph_loader = graph_loader,

@@ -1,6 +1,6 @@
-# modules/mod_citation_cluster_tables.R
+# modules/citation/tables_citation_cluster.R
 
-mod_citation_cluster_tables_ui <- function(id) {
+tables_citation_cluster_ui <- function(id) {
   ns <- NS(id)
 
   div(
@@ -90,7 +90,7 @@ mod_citation_cluster_tables_ui <- function(id) {
   )
 }
 
-mod_citation_cluster_tables_server <- function(
+tables_citation_cluster_server <- function(
   id,
   view_state,
   cluster_id,

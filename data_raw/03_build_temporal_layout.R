@@ -12,6 +12,7 @@ p_load(tidyverse, data.table, tidygraph, ggraph)
 backbone_network <- read_rds(here("data", "backbone_network.rds"))
 window_levels <- read_rds(here("data", "window_levels.rds"))
 comm_levels <- read_rds(here("data_raw", "comm_levels.rds"))
+cluster_colors <- read_rds(here("data", "cluster_colors.rds"))
 
 # ------------------------------------------------------------
 # Extract nodes as table
@@ -77,11 +78,6 @@ temporal_backbone_network <- backbone_network %>%
   select(-x, -y) %>%
   left_join(nodes_pos, by = c("cluster_id", "community"))
 
-write_rds(
-  temporal_backbone_network,
-  here("data", "temporal_backbone_network.rds")
-)
-
 # ------------------------------------------------------------
 # Compute community label positions
 # ------------------------------------------------------------
@@ -99,4 +95,13 @@ community_label_positions <- comm_band %>%
 write_rds(
   community_label_positions,
   here("data", "community_label_positions.rds")
+)
+
+attr(temporal_backbone_network, "window_levels") <- window_levels
+attr(temporal_backbone_network, "community_label_positions") <- community_label_positions
+attr(temporal_backbone_network, "cluster_colors") <- cluster_colors
+
+write_rds(
+  temporal_backbone_network,
+  here("data", "temporal_backbone_network.rds")
 )

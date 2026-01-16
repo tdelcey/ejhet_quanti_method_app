@@ -74,7 +74,7 @@ sentences <- sentences_dataset %>%
 setDT(sentences, key = "sentence_id")
 sentences <- merge(sentences, metadata, by = "id", all = FALSE)
 
-# compute cluster centroids (one numeric vector per cluster)
+# compute HDBSCAN cluster centroids (one numeric vector per cluster)
 centroids_dt <- sentences[,
   .(centroid = list(colMeans(do.call(rbind, embedding)))),
   by = cluster_id
@@ -86,7 +86,7 @@ cent_list <- setNames(
   as.character(centroids_dt$cluster_id)
 )
 
-# cosine similarity between each sentence embedding and its cluster centroid
+# cosine similarity between each sentence embedding and its HDBSCAN cluster centroids
 similarity_vec <- vapply(
   seq_len(nrow(sentences)),
   function(i) {
@@ -118,7 +118,7 @@ rm(metadata)
 gc()
 
 # ------------------------------------------------------------
-# 5. References (Web of Science)
+# 5. List of articles and their references
 # ------------------------------------------------------------
 sentences_art <- sentences[
   !is.na(id_wos_matched),
@@ -133,6 +133,7 @@ sentences_art <- sentences[
     url
   )
 ]
+
 setnames(sentences_art, "N", "nb_sentence")
 
 # Load chosen references
@@ -149,11 +150,18 @@ refs <- open_dataset(
     journal_abbrev = Revue_Abbrege
   )
 
+
+# create a table with all ref that are also articles
+
+label_cluster <- sentences_art %>%
+  select(id, id_wos_matched, cluster_id)
+
+refs_in_corpus <- refs %>%
+  inner_join(sentences_art, by = c("ItemID_Ref" = "id_wos_matched"))
+
 write_rds(sentences_art, here("data_raw", "sentences_art.rds"))
 write_rds(refs, here("data_raw", "references_wos.rds"))
-
-rm(refs)
-gc()
+write_rds(refs_in_corpus, here("data_raw", "references_in_corpus_wos.rds"))
 
 # ------------------------------------------------------------
 # 6. Backbone network raw input

@@ -1,6 +1,6 @@
-# modules/mod_citation_network_view.R
+# modules/citation/view_citation_network.R
 
-mod_citation_network_view_ui <- function(id) {
+view_citation_network_ui <- function(id) {
   ns <- NS(id)
 
   div(
@@ -53,7 +53,7 @@ mod_citation_network_view_ui <- function(id) {
   )
 }
 
-mod_citation_network_view_server <- function(
+view_citation_network_server <- function(
   id,
   graph_tbl = NULL,
   graph_index = NULL,

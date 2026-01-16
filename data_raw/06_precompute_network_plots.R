@@ -12,7 +12,7 @@ p_load(
   ggrepel
 )
 
-source(here::here("utils", "plot_backbone.R"))
+source(here::here("utils", "plot_textual_network.R"))
 source(here::here("utils", "plot_citation_network.R"))
 
 plots_dir <- here::here("data_raw", "plots")
@@ -29,22 +29,13 @@ temporal_backbone_network <- readRDS(here::here(
   "data",
   "temporal_backbone_network.rds"
 ))
-community_label_positions <- readRDS(here::here(
-  "data",
-  "community_label_positions.rds"
-))
-window_levels <- readRDS(here::here("data", "window_levels.rds"))
 
-textual_static <- plot_network_interactive_static(
-  graph = backbone_network,
-  cluster_colors = cluster_colors
+textual_static <- plot_textual_network_static(
+  graph = backbone_network
 )
 
-textual_dynamic <- plot_network_interactive_dynamic(
-  temporal_backbone_network = temporal_backbone_network,
-  cluster_colors = cluster_colors,
-  community_label_positions = community_label_positions,
-  window_levels = window_levels
+textual_dynamic <- plot_textual_network_dynamic(
+  temporal_backbone_network = temporal_backbone_network
 )
 
 saveRDS(
@@ -58,12 +49,14 @@ saveRDS(
 
 message("Precomputing citation network plots...")
 
-bibliometrics_data <- readRDS(file.path(
-  "data",
-  "data_for_app_bibliometrics.RDS"
-))
+biblio_dir <- here::here("data", "bibliometrics")
+graphs_dir <- file.path(biblio_dir, "graphs")
+biblio_index <- readRDS(file.path(biblio_dir, "index.rds"))
 
-citation_graphs <- bibliometrics_data$graphs
+citation_graphs <- lapply(biblio_index$key, function(k) {
+  readRDS(file.path(graphs_dir, paste0(k, ".rds")))
+})
+names(citation_graphs) <- biblio_index$key
 
 if (is.list(citation_graphs)) {
   if (is.null(names(citation_graphs))) {

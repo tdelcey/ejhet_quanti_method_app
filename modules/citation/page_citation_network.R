@@ -1,15 +1,15 @@
-# modules/mod_citation_network.R
+# modules/citation/page_citation_network.R
 
-modules_citation_network_ui <- function(id) {
+page_citation_network_ui <- function(id) {
   ns <- NS(id)
 
   fluidRow(
-    column(6, mod_citation_network_view_ui(ns("view"))),
-    column(6, mod_citation_cluster_tables_ui(ns("tables")))
+    column(6, view_citation_network_ui(ns("view"))),
+    column(6, tables_citation_cluster_ui(ns("tables")))
   )
 }
 
-modules_citation_network_server <- function(
+page_citation_network_server <- function(
   id,
   graph_tbl = NULL,
   graph_index = NULL,
@@ -29,7 +29,7 @@ modules_citation_network_server <- function(
   precomputed_plots = NULL
 ) {
   moduleServer(id, function(input, output, session) {
-    view_state <- mod_citation_network_view_server(
+    view_state <- view_citation_network_server(
       "view",
       graph_tbl = graph_tbl,
       graph_index = graph_index,
@@ -42,7 +42,7 @@ modules_citation_network_server <- function(
       precomputed_plots = precomputed_plots
     )
 
-    mod_citation_cluster_tables_server(
+    tables_citation_cluster_server(
       "tables",
       view_state = view_state,
       cluster_id = cluster_id,

@@ -187,7 +187,21 @@ write_rds(
 )
 
 # ============================================================
-# 4) TABLE: RECURRING AUTHORS
+# 4) TABLE: CLUSTER LABELS
+# ============================================================
+
+cluster_labels <- backbone_network %>%
+  activate("nodes") %>%
+  as_tibble() %>%
+  distinct(cluster_id, label_hdbscan_cluster)
+
+write_rds(
+  cluster_labels,
+  here("data", "cluster_labels.rds")
+)
+
+# ============================================================
+# 5) TABLE: RECURRING AUTHORS
 # ============================================================
 
 recurring_authors <- sentences[

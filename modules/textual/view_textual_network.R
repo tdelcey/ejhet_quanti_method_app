@@ -1,5 +1,5 @@
-# modules/mod_network_view.R
-mod_network_view_ui <- function(id) {
+# modules/textual/view_textual_network.R
+view_textual_network_ui <- function(id) {
   ns <- NS(id)
 
   div(
@@ -70,13 +70,10 @@ mod_network_view_ui <- function(id) {
 # SERVER
 # ======================================================================
 
-mod_network_view_server <- function(
+view_textual_network_server <- function(
   id,
-  backbone_network,
-  temporal_backbone_network,
-  cluster_colors,
-  community_label_positions,
-  window_levels,
+  backbone_network = NULL,
+  temporal_backbone_network = NULL,
   static_plot = NULL,
   temporal_plot = NULL
 ) {
@@ -89,20 +86,22 @@ mod_network_view_server <- function(
         if (!is.null(static_plot)) {
           static_plot
         } else {
-          plot_network_interactive_static(
-            graph = backbone_network,
-            cluster_colors = cluster_colors
+          if (is.null(backbone_network)) {
+            stop("Missing backbone_network for static plot rendering.")
+          }
+          plot_textual_network_static(
+            graph = backbone_network
           )
         }
       } else {
         if (!is.null(temporal_plot)) {
           temporal_plot
         } else {
-          plot_network_interactive_dynamic(
-            temporal_backbone_network = temporal_backbone_network,
-            cluster_colors = cluster_colors,
-            community_label_positions = community_label_positions,
-            window_levels = window_levels
+          if (is.null(temporal_backbone_network)) {
+            stop("Missing temporal_backbone_network for temporal plot rendering.")
+          }
+          plot_textual_network_dynamic(
+            temporal_backbone_network = temporal_backbone_network
           )
         }
       }
