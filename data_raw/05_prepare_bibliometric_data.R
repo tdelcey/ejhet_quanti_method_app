@@ -278,6 +278,7 @@ closest_sentences <- sentences %>%
       id_text,
       name,
       title,
+      journal,
       value_col,
       time_window
     ),
@@ -290,12 +291,16 @@ closest_sentences <- sentences %>%
     year,
     name,
     title,
+    journal,
     sentence,
     similarity_rv
   ) %>%
   group_by(value_col, time_window) %>%
   slice_max(order_by = similarity_rv, n = 15, with_ties = FALSE) %>%
-  mutate(similarity_rv = round(similarity_rv, 3)) %>%
+  mutate(
+    similarity_rv = round(similarity_rv, 3),
+    journal = str_to_title(journal)
+  ) %>%
   arrange(desc(similarity_rv))
 
 # ------------------------------------------------------------

@@ -197,6 +197,7 @@ tables_citation_cluster_server <- function(
         dplyr::select(dplyr::any_of(c(
           cluster_information,
           "sentence",
+          "journal",
           "similarity_rv"
         ))) %>%
         dplyr::rename(cosine_similarity = similarity_rv)
