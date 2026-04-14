@@ -13,7 +13,7 @@ p_load(tidyverse, data.table, arrow, tidygraph, networkflow, glue, cli)
 graphs <- readRDS(file.path(
   ejhet_project,
   "networks",
-  "networks_1960_2014_8_year_windows_0.1_rationality_score.RDS"
+  "networks_1960_2010_8_year_windows_0.1_rationality_score.RDS"
 ))
 
 graph_names <- names(graphs)
@@ -54,7 +54,7 @@ refs <- ref_dataset %>%
 labels <- readRDS(file.path(
   ejhet_project,
   "networks",
-  "label_ai_1960_2014_8_year_windows_0.1_rationality_score.RDS"
+  "label_ai_1960_2010_8_year_windows_0.1_rationality_score.RDS"
 ))
 
 metadata <- arrow::read_feather(file.path(
@@ -471,4 +471,3 @@ saveRDS(
   ),
   file.path(bibliometrics_dir, "tables.rds")
 )
-

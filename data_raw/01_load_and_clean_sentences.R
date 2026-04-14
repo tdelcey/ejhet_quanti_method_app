@@ -23,17 +23,8 @@ p_load(
 
 metadata <- read_feather(file.path(ejhet_project, "metadata_maintext.feather"))
 
-# ------------------------------------------------------------
-# 2. Merge metadata + nb sentences
-# ------------------------------------------------------------
-nb_sentences <- read_feather(file.path(
-  ejhet_project,
-  "n_sentences_per_id_after_cleaning.feather"
-))
-
 metadata <- metadata %>%
-  filter(!is.na(year), !is.na(title)) %>%
-  left_join(nb_sentences, by = "id")
+  filter(!is.na(year), !is.na(title))
 setDT(metadata)
 
 metadata[,
