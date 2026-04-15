@@ -122,7 +122,7 @@ graphs <- lapply(graphs, function(graph) {
         str_replace_all(., "[:punct:]", " ") %>%
         str_squish(),
       value_col = if_else(
-        is.na(dynamic_cluster_leiden),
+        is.na(value_col),
         dynamic_cluster_leiden,
         value_col
       )
