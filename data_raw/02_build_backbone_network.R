@@ -124,6 +124,25 @@ labels_backbone_community[,
   )
 ]
 
+# Apply manual names from CSV (overrides auto TF-IDF labels)
+manual_names_path <- file.path(ejhet_project, "manual_names_textual_analysis.csv")
+if (file.exists(manual_names_path)) {
+  manual_names <- data.table::fread(manual_names_path)[
+    !is.na(new_names) & new_names != "",
+    .(backbone_community = as.character(backbone_community), label_backbone_community = new_names)
+  ]
+  labels_backbone_community <- merge(
+    labels_backbone_community[, .(backbone_community)],
+    manual_names,
+    by = "backbone_community",
+    all.x = TRUE
+  )
+  labels_backbone_community[
+    is.na(label_backbone_community),
+    label_backbone_community := as.character(backbone_community)
+  ]
+}
+
 sentences <- merge(
   sentences,
   labels_backbone_community,

@@ -28,7 +28,7 @@ plot_textual_network_static <- function(graph) {
     dplyr::summarise(
       label_x = mean(x),
       label_y = mean(y),
-      label = first(backbone_community),
+      label = first(label_backbone_community),
       fill_color = first(fill_color),
       .groups = "drop"
     )
