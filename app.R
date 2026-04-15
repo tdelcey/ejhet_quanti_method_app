@@ -75,12 +75,27 @@ server <- function(input, output, session) {
   top_refs <- load_data("cluster_top_references")
   cluster_labels <- load_data("cluster_labels")
 
+  # Helper: strip font dependencies whose local path doesn't exist on this
+  # machine (e.g. Linux paths baked into plots generated on another OS).
+  fix_font_deps <- function(x) {
+    if (is.list(x) && !inherits(x, "htmlwidget")) {
+      return(lapply(x, fix_font_deps))
+    }
+    if (inherits(x, "htmlwidget") && !is.null(x$dependencies)) {
+      x$dependencies <- Filter(function(dep) {
+        src_file <- dep$src[["file"]]
+        is.null(src_file) || file.exists(src_file)
+      }, x$dependencies)
+    }
+    x
+  }
+
   # precomputed plots
-  textual_plots <- readRDS(here::here(
+  textual_plots <- fix_font_deps(readRDS(here::here(
     "data_raw",
     "plots",
     "textual_network_plots.rds"
-  ))
+  )))
 
   # citation network
   bibliometrics_index_path <- here::here("data", "bibliometrics", "index.rds")
@@ -114,9 +129,9 @@ server <- function(input, output, session) {
   cluster_origins <- biblio_tables$cluster_origins
   cluster_destinies <- biblio_tables$cluster_destinies
   tf_idf <- biblio_tables$tf_idf
-  citation_plots <- readRDS(
+  citation_plots <- fix_font_deps(readRDS(
     here::here("data_raw", "plots", "citation_network_plots.rds")
-  )
+  ))
 
   citation_cluster_information <- c(
     "name",
