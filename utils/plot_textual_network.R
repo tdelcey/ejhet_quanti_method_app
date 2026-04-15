@@ -185,15 +185,15 @@ plot_textual_network_dynamic <- function(
       expand = expansion(add = c(0.9, 0.9))
     ) +
     labs(x = NULL, y = NULL) +
-    theme_minimal() +
+    theme_minimal(base_size = 20) +
     theme(
       panel.grid = element_blank(),
-      axis.text.y = element_text(size = 10, hjust = 1),
+      axis.text.y = element_text(size = 13, hjust = 1),
       axis.text.x = element_text(
         angle = 45,
         hjust = 1,
         vjust = 1,
-        size = 9
+        size = 13
       ),
       axis.ticks = element_line(color = "grey50"),
       axis.line = element_line(color = "grey50")
