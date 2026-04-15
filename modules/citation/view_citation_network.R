@@ -26,10 +26,9 @@ view_citation_network_ui <- function(id) {
     callout_box(
       title = "Interpretation",
       icon = "\U0001F4DA",
-      text = "Each node represents an article and edges represent shared references between articles. 
-              Colors indicate bibliometric communities. 
-              Nodes with no colors are communities representing less than 5% of the window's articles or existing in only one time window.
-              Use the time window selector to explore how the citation structure changes across periods.",
+      text = "Each node is an article. Articles are connected when they cite similar references — a proxy for shared intellectual background. Colors indicate communities of articles that recurrently cluster together across consecutive 8-year time windows. Uncolored nodes belong to communities that are too small or too short-lived to be considered substantive. The spatial layout positions articles with similar citation profiles in close proximity. See the paper for the full methodology.
+
+Use the time window selector to explore how the citation structure changes across periods.",
       border = "#00695C",
       bg = "#E0F2F1"
     ),

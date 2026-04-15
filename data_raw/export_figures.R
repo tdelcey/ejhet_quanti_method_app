@@ -52,11 +52,11 @@ p_static <- ggraph::ggraph(backbone_network, layout = "manual", x = x, y = y) +
     data = label_df,
     ggplot2::aes(x = label_x, y = label_y, label = label, fill = I(fill_color)),
     color = "black",
-    size = 4.2,
+    size = 6,
     fontface = "bold",
-    label.size = 0.3,
+    label.size = 0.4,
     label.r = ggplot2::unit(0.15, "lines"),
-    alpha = 0.70,
+    alpha = 1,
     seed = 42
   ) +
   ggplot2::theme_void()
@@ -133,15 +133,15 @@ p_temporal <- ggraph::ggraph(
     expand = ggplot2::expansion(add = c(0.9, 0.9))
   ) +
   ggplot2::labs(x = NULL, y = NULL) +
-  ggplot2::theme_minimal(base_size = 14) +
+  ggplot2::theme_minimal(base_size = 16) +
   ggplot2::theme(
     panel.grid = ggplot2::element_blank(),
-    axis.text.y = ggplot2::element_text(size = 11, hjust = 1),
+    axis.text.y = ggplot2::element_text(size = 16, hjust = 1),
     axis.text.x = ggplot2::element_text(
       angle = 45,
       hjust = 1,
       vjust = 1,
-      size = 11
+      size = 14
     ),
     axis.ticks = ggplot2::element_line(color = "grey50"),
     axis.line = ggplot2::element_line(color = "grey50")
@@ -213,9 +213,9 @@ p_cit <- ggraph::ggraph(g_cit, layout = "manual", x = x, y = y) +
   ggrepel::geom_label_repel(
     data = label_data_cit,
     ggplot2::aes(x = label_x, y = label_y, label = value_col, fill = I(color)),
-    alpha = 0.9,
+    alpha = 1,
     fontface = "bold",
-    size = 2.5,
+    size = 4,
     show.legend = FALSE
   ) +
   ggplot2::scale_size_continuous(range = c(1.5, 7)) +

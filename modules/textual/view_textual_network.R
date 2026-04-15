@@ -27,12 +27,9 @@ view_textual_network_ui <- function(id) {
     callout_box(
       title = "Interpretation",
       icon = "\U0001F4DA",
-      text = "Each node is an HDBSCAN cluster; colors indicate groups of clusters.
-              Users can switch between two visualization modes: static and temporal.
-              Static mode positions clusters using a force-directed layout based on semantic similarity 
-              between representative vectors. Static visualization focuses on cluster relationships.
-              Temporal mode orders clusters chronologically along the x-axis based on the window in which they emerge. 
-              Temporal visualization focuses on the evolution of clusters over time.",
+      text = "Each node is a group of sentences discussing rationality in a similar way, identified within a given decade. Node size reflects how many sentences belong to that group. Colors indicate broader thematic clusters that persist across decades — nodes sharing the same color address rationality in comparable ways across time. See the paper for the full methodology.
+
+Two visualization modes are available. Static mode positions clusters using a force-directed layout that reflects overall semantic proximity. Temporal mode groups clusters by decade along the x-axis (1900–1919, 1920–1929, …, 2000–2009), with thematic clusters separated along the y-axis, making it easier to follow how topics evolve over time.",
       border = "#00796B",
       bg = "#E0F2F1"
     ),
