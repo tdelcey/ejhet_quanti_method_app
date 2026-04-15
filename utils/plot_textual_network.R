@@ -13,7 +13,7 @@ plot_textual_network_static <- function(graph) {
         tfidf_label,
         "\n",
         "Proportion of sentences: ",
-        round(proportion_hdbscan_cluster * 100, 2),
+        round(proportion_global * 100, 2),
         "%"
       )
     )
@@ -55,7 +55,7 @@ plot_textual_network_static <- function(graph) {
         fill = I(fill_color),
         data_id = cluster_id,
         tooltip = tooltip,
-        size = proportion_hdbscan_cluster
+        size = proportion_global
       ),
       shape = 21,
       alpha = 0.9,

@@ -22,6 +22,10 @@ sentences[,
   proportion_hdbscan_cluster := .N / size_window,
   by = .(HDBSCAN_cluster, window)
 ]
+sentences[,
+  proportion_global := .N / nrow(sentences),
+  by = cluster_id
+]
 
 # ------------------------------------------------------------
 # 2. COMPUTE TF-IDF LABELS FOR COMMUNITIES
@@ -179,7 +183,8 @@ backbone_network <- backbone_network_raw %>%
         backbone_community,
         tfidf_label,
         label_backbone_community,
-        proportion_hdbscan_cluster
+        proportion_hdbscan_cluster,
+        proportion_global
       ),
     by = "cluster_id"
   )
