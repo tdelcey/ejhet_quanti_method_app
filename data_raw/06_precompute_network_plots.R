@@ -58,6 +58,26 @@ citation_graphs <- lapply(biblio_index$key, function(k) {
 })
 names(citation_graphs) <- biblio_index$key
 
+# Build a global color map across all time windows so that:
+#   - natural language labels get a fixed color (same label = same color)
+#   - cl_X clusters (unlabelled) get white (rendered as empty nodes)
+all_value_cols <- unique(unlist(lapply(citation_graphs, function(g) {
+  as.character(as.data.frame(tidygraph::activate(g, "nodes"))$value_col)
+})))
+
+natural_labels <- sort(all_value_cols[!grepl("^cl_\\d", all_value_cols)])
+set.seed(42)
+natural_labels_shuffled <- sample(natural_labels)
+pal <- grDevices::hcl(
+  h = seq(0, 360, length.out = length(natural_labels) + 1)[-1],
+  c = 65,
+  l = 58
+)
+citation_color_map <- stats::setNames(pal, natural_labels_shuffled)
+
+cl_labels <- all_value_cols[grepl("^cl_\\d", all_value_cols)]
+citation_color_map[cl_labels] <- "white"
+
 if (is.list(citation_graphs)) {
   if (is.null(names(citation_graphs))) {
     names(citation_graphs) <- as.character(seq_along(citation_graphs))
@@ -70,7 +90,8 @@ if (is.list(citation_graphs)) {
       node_tooltip = "nodes_tooltip",
       node_size = "node_size",
       label_size = 2.2,
-      node_size_range = c(1.5, 7)
+      node_size_range = c(1.5, 7),
+      color_map = citation_color_map
     )
   })
 } else {
@@ -81,7 +102,8 @@ if (is.list(citation_graphs)) {
     node_tooltip = "nodes_tooltip",
     node_size = "node_size",
     label_size = 2.2,
-    node_size_range = c(1.5, 7)
+    node_size_range = c(1.5, 7),
+    color_map = citation_color_map
   )
 }
 

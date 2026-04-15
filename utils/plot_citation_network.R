@@ -7,7 +7,8 @@ plot_citation_network_girafe <- function(
   node_tooltip = NULL,
   node_size = NULL,
   label_size = 2.2,
-  node_size_range = c(1.5, 7)
+  node_size_range = c(1.5, 7),
+  color_map = NULL
 ) {
   g_tbl <- tidygraph::activate(graph, "nodes")
 
@@ -39,10 +40,17 @@ plot_citation_network_girafe <- function(
 
   if (!"color" %in% names(nodes_df)) {
     cluster_vals <- as.character(nodes_df[[cluster_id]])
-    uniq_clusters <- unique(cluster_vals)
-    pal <- grDevices::hcl.colors(length(uniq_clusters), palette = "Dark 3")
-    color_map <- setNames(pal, uniq_clusters)
-    nodes_df$color <- unname(color_map[cluster_vals])
+    if (!is.null(color_map)) {
+      nodes_df$color <- dplyr::coalesce(
+        unname(color_map[cluster_vals]),
+        "white"
+      )
+    } else {
+      uniq_clusters <- unique(cluster_vals)
+      pal <- grDevices::hcl.colors(length(uniq_clusters), palette = "Dark 3")
+      local_color_map <- setNames(pal, uniq_clusters)
+      nodes_df$color <- unname(local_color_map[cluster_vals])
+    }
     g_tbl <- g_tbl %>% dplyr::mutate(color = nodes_df$color)
   }
 
