@@ -68,20 +68,8 @@ labels_hdbscan_cluster <- tokens_count_hdbscan_cluster[order(-tf_idf)][
 ]
 
 labels_hdbscan_cluster <- labels_hdbscan_cluster[,
-  .(label_hdbscan_cluster = paste0(token, collapse = ", ")),
+  .(tfidf_label = paste0(token, collapse = ", ")),
   by = .(backbone_community, HDBSCAN_cluster, cluster_id, window)
-]
-
-labels_hdbscan_cluster[,
-  label_hdbscan_cluster := paste0(
-    backbone_community,
-    "_",
-    HDBSCAN_cluster,
-    "_",
-    window,
-    ": ",
-    label_hdbscan_cluster
-  ) # we save the backbonne community number to see difference in top terms depending on hdbscan cluster
 ]
 
 sentences <- merge(
@@ -189,7 +177,7 @@ backbone_network <- backbone_network_raw %>%
         cluster_id,
         HDBSCAN_cluster,
         backbone_community,
-        label_hdbscan_cluster,
+        tfidf_label,
         label_backbone_community,
         proportion_hdbscan_cluster
       ),

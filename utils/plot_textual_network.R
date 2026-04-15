@@ -6,14 +6,15 @@ plot_textual_network_static <- function(graph) {
   graph <- graph %>%
     dplyr::mutate(
       tooltip = paste0(
-        "HDBSCAN_cluster: ",
-        HDBSCAN_cluster,
+        "Period: ",
+        window,
         "\n",
-        "Label: ",
-        label_hdbscan_cluster,
+        "TF-IDF: ",
+        tfidf_label,
         "\n",
-        "Proportion: ",
-        proportion_hdbscan_cluster
+        "Proportion of sentences: ",
+        round(proportion_hdbscan_cluster * 100, 2),
+        "%"
       )
     )
 
@@ -69,11 +70,11 @@ plot_textual_network_static <- function(graph) {
         fill = I(fill_color)
       ),
       color = "black",
-      size = 4,
+      size = 4.2,
       fontface = "bold",
       label.size = 0.3,
       label.r = unit(0.15, "lines"),
-      alpha = 0.95,
+      alpha = 0.70,
       seed = 42
     )
 
@@ -121,16 +122,13 @@ plot_textual_network_dynamic <- function(
   graph <- graph %>%
     mutate(
       tooltip = paste0(
-        "HDBSCAN_cluster: ",
-        HDBSCAN_cluster,
-        "\n",
-        "Label: ",
-        label_hdbscan_cluster,
-        "\n",
         "Period: ",
         window,
         "\n",
-        "Proportion: ",
+        "TF-IDF: ",
+        tfidf_label,
+        "\n",
+        "Proportion of sentences in this time window: ",
         round(proportion_hdbscan_cluster * 100, 2),
         "%"
       )

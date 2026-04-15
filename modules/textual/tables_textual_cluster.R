@@ -119,7 +119,7 @@ tables_textual_cluster_server <- function(
       if (!is.null(cid) && cid != "") {
         display_label <- cluster_labels %>%
           dplyr::filter(cluster_id == cid) %>%
-          dplyr::pull(label_hdbscan_cluster) %>%
+          dplyr::pull(tfidf_label) %>%
           unique()
         display_label <- display_label[!is.na(display_label)]
         if (length(display_label) > 0) {

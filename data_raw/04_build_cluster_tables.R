@@ -193,7 +193,7 @@ write_rds(
 cluster_labels <- backbone_network %>%
   activate("nodes") %>%
   as_tibble() %>%
-  distinct(cluster_id, label_hdbscan_cluster)
+  distinct(cluster_id, tfidf_label)
 
 write_rds(
   cluster_labels,
