@@ -51,28 +51,20 @@ if (str_detect(getwd(), "goutsmed")) {
   general_data_path <- "E:/Dropbox/8-Projets Quanti/1-R_Projects/Data/1-General_data"
 } else {
   if (str_detect(getwd(), "github_p")) {
-    app_data_path <- "data"
-    ejhet_project <- "C:/cloud/data/ejhet_project"
-    jstor_raw_data <- "C:/cloud/data/jstor"
-    jstor_data_path <- "C:/cloud/data/jstor"
-    wos_data_path <- "C:/cloud/data/wos"
-    istex_data <- "C:/cloud/data/istex"
-    istex_data_path <- "C:/cloud/data/istex"
-    elsevier_data <- "C:/cloud/data/elsevier"
-    elsevier_data_path <- "C:/cloud/data/elsevier"
-    embeddings_data <- "C:/cloud/data/econ_embeddings"
+    ejhet_project   <- "C:/cloud/data/ejhet_project"
+    wos_db          <- "D:/wos/wos.duckdb"
+    jstor_db        <- "D:/jstor/jstor.duckdb"
+    istex_db        <- "D:/istex/istex.duckdb"
+    elsevier_db     <- "D:/elsevier/scopus.duckdb"
+    embeddings_data <- "D:/econ_embeddings"
   } else {
     if (str_detect(getwd(), "github_w")) {
-      app_data_path <- "data"
-      ejhet_project <- "C:/cloud/data/ejhet_project"
-      jstor_raw_data <- "C:/cloud/data/jstor"
-      jstor_data_path <- "C:/cloud/data/jstor"
-      wos_data_path <- "C:/cloud/data/wos"
-      istex_data <- "C:/cloud/data/istex"
-      istex_data_path <- "C:/cloud/data/istex"
-      elsevier_data <- "C:/cloud/data/elsevier"
-      elsevier_data_path <- "C:/cloud/data/elsevier"
-      embeddings_data <- "C:/cloud/data/econ_embeddings"
+      ejhet_project   <- "C:/cloud/data/ejhet_project"
+      wos_db          <- "D:/wos/wos.duckdb"
+      jstor_db        <- "D:/jstor/jstor.duckdb"
+      istex_db        <- "D:/istex/istex.duckdb"
+      elsevier_db     <- "D:/elsevier/scopus.duckdb"
+      embeddings_data <- "D:/econ_embeddings"
     }
   }
 }

@@ -4,6 +4,7 @@
 # ============================================================
 
 source(here::here("data_raw", "paths_and_packages.R"))
+source(here::here("utils", "network_roles.R"))
 p_load(tidyverse, data.table, arrow, tidygraph, networkflow, glue, cli)
 
 # ------------------------------------------------------------
@@ -24,11 +25,6 @@ if (!is.null(graph_names)) {
   graphs <- graphs[!is.na(graph_starts) & graph_starts <= 2002]
 }
 
-ref_dataset <- open_dataset(
-  file.path(wos_data_path, "all_ref.parquet"),
-  format = "parquet"
-)
-
 list_ids <- lapply(graphs, function(graph) {
   graph %>%
     activate(nodes) %>%
@@ -41,8 +37,9 @@ list_ids <- lapply(graphs, function(graph) {
   pull(ID_Art) %>%
   as.integer()
 
-refs <- ref_dataset %>%
-  filter(ID_Art %in% list_ids) %>%
+con <- DBI::dbConnect(duckdb::duckdb(), wos_db, read_only = TRUE)
+refs <- dplyr::tbl(con, "references") %>%
+  filter(ID_Art %in% !!list_ids) %>%
   select(ID_Art, ItemID_Ref, Annee, Nom, Revue_Abbrege) %>%
   collect() %>%
   rename(
@@ -50,12 +47,12 @@ refs <- ref_dataset %>%
     name = Nom,
     journal_abbrev = Revue_Abbrege
   )
+DBI::dbDisconnect(con)
 
-labels <- readRDS(file.path(
-  ejhet_project,
-  "networks",
-  "label_ai_1960_2010_8_year_windows_0.1_rationality_score.RDS"
-))
+cluster_labels <- data.table::fread(
+  file.path(ejhet_project, "manual_names_bibliometric_communities.csv")
+)
+
 
 metadata <- arrow::read_feather(file.path(
   ejhet_project,
@@ -102,7 +99,7 @@ article_sentences <- sentences %>%
 graphs <- lapply(graphs, function(graph) {
   graph <- graph %>%
     activate(nodes) %>%
-    left_join(labels, by = c("dynamic_cluster_leiden" = "id_col")) %>%
+    left_join(cluster_labels, by = "dynamic_cluster_leiden") %>%
     left_join(article_sentences, by = c("id_text" = "id")) %>%
     rename(
       name = Nom,
@@ -122,9 +119,9 @@ graphs <- lapply(graphs, function(graph) {
         str_replace_all(., "[:punct:]", " ") %>%
         str_squish(),
       value_col = if_else(
-        is.na(value_col),
-        dynamic_cluster_leiden,
-        value_col
+        !is.na(new_names),
+        new_names,
+        dynamic_cluster_leiden
       )
     )
 
