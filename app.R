@@ -12,8 +12,6 @@ pacman::p_load(
   bs4Dash
 )
 
-source(here::here("data_raw", "paths_and_packages.R"))
-
 # load any helper functions and modules
 list_files_helpers <- list.files(
   "utils",
@@ -32,11 +30,7 @@ list_files <- c(list_files_helpers, list_files_modules)
 invisible(lapply(list_files, source))
 
 
-#' load data
-#' ⚠️ `create_update_data()` must have been run once before launching the app ⚠️
-#' The script creates/updates all the data needed for the app using a path to the ejhet_project folder.
-
-#' `rsconnect::writeManifest(appDir = ".", appFiles = NULL)` can be used to create a manifest file for deployment on cloud.
+# ⚠️ The app requires pre-built data in data/. To rebuild it, run data_raw/create_update_data.R (maintainers only).
 
 # general ui
 
@@ -77,7 +71,7 @@ server <- function(input, output, session) {
 
   # precomputed plots
   textual_plots <- readRDS(here::here(
-    "data_raw",
+    "data",
     "plots",
     "textual_network_plots.rds"
   ))
@@ -115,7 +109,7 @@ server <- function(input, output, session) {
   cluster_destinies <- biblio_tables$cluster_destinies
   tf_idf <- biblio_tables$tf_idf
   citation_plots <- readRDS(
-    here::here("data_raw", "plots", "citation_network_plots.rds")
+    here::here("data", "plots", "citation_network_plots.rds")
   )
 
   citation_cluster_information <- c(
