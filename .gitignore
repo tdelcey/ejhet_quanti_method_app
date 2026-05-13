@@ -5,7 +5,8 @@
 .Rproj
 .Rprofile
 
-data_raw/
+data_raw/**/*.rds
+data_raw/**/*.RDS
 CLAUDE.md
 .claude/settings.local.json
 .claude/settings.json
