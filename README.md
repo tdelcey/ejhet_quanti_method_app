@@ -29,7 +29,7 @@ Then launch the app from the project root:
 shiny::runApp()
 ```
 
-All pre-built data files are included in `data/`. No additional setup is required.
+All pre-built data files are included in `data/`. No additional setup is required. An online version heberged by Posit Connect Cloud is available at [https://019adac8-81d4-aa0e-808c-08861c261fd2.share.connect.posit.cloud](https://019adac8-81d4-aa0e-808c-08861c261fd2.share.connect.posit.cloud).
 
 ## Data
 
