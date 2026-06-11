@@ -7,7 +7,7 @@ Shiny app for exploring ~290,000 full-text English-language economics journal ar
 - **Textual network** — semantic clusters of sentences extracted via LLM embeddings and HDBSCAN clustering, with TF-IDF keywords, representative sentences, top articles, and references per cluster.
 - **Citation network** — bibliographic coupling communities across 8-year time windows, with cluster shares, closest sentences, top references, and flow tables.
 
-## Run locally
+## Run the app 
 
 **Requirements:** R ≥ 4.4
 
@@ -29,7 +29,9 @@ Then launch the app from the project root:
 shiny::runApp()
 ```
 
-All pre-built data files are included in `data/`. No additional setup is required. An online version heberged by Posit Connect Cloud is available at [https://019adac8-81d4-aa0e-808c-08861c261fd2.share.connect.posit.cloud](https://019adac8-81d4-aa0e-808c-08861c261fd2.share.connect.posit.cloud).
+All pre-built data files are included in `data/`. No additional setup is required. 
+
+An online version heberged by Posit Connect Cloud is available at [https://019adac8-81d4-aa0e-808c-08861c261fd2.share.connect.posit.cloud](https://019adac8-81d4-aa0e-808c-08861c261fd2.share.connect.posit.cloud).
 
 ## Data
 
