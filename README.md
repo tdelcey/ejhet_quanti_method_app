@@ -42,7 +42,7 @@ Pre-built `.rds` files in `data/` are committed to this repository and loaded at
 | `cluster_sentences.rds` | Sentences with cluster assignments and similarity scores |
 | `tfidf_tables.rds` | TF-IDF top terms per cluster |
 | `cluster_top_articles.rds` / `cluster_top_references.rds` | Top articles and references per textual cluster |
-| `cluster_labels.rds` | AI-generated cluster labels |
+| `cluster_labels.rds` | Manual cluster labels |
 | `bibliometrics/` | Bibliographic coupling index, tables, and per-window graphs |
 | `plots/` | Pre-rendered `ggiraph` plot objects |
 
