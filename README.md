@@ -1,6 +1,6 @@
 # One Sentence at a Time — Interactive Dashboard
 
-Shiny app for exploring ~290,000 full-text English-language economics journal articles (1900–2009), built for the research project *"One Sentence at a Time: A Quantitative History of Rationality in Economic Thought"*.
+Shiny app for exploring ~250,000 full-text English-language economics journal articles (1900–2009), built for the research project *"One Sentence at a Time: A Quantitative History of Rationality in Economic Thought"*.
 
 ## Features
 
